@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpm -C packages/core exec cargo build --bin selien --verbose && pnpm -C packages/core exec cargo test && cargo clippy -- -D warnings && pnpm -C packages/core exec cargo fmt
+pnpm -C packages/core exec cargo build --bin selien --verbose
+pnpm -C packages/core exec cargo test
+pnpm -C packages/core exec cargo clippy -- -D warnings
+pnpm -C packages/core exec cargo fmt
