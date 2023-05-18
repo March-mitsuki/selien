@@ -1,0 +1,14 @@
+{
+  "name": "selien",
+  "version": "0.1.0",
+  "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
+  "keywords": [
+    "rest-api",
+    "rest",
+    "websocket",
+    "interface",
+    "generator",
+    "ssot"
+  ],
+  "license": "MIT"
+}

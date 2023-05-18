@@ -1,0 +1,97 @@
+selien-version: 0.1.0
+definition:
+  customString:
+    declaration: type-alias
+    body:
+      type: string
+  customNumber:
+    declaration: type-alias
+    body:
+      type: number
+  literalString:
+    declaration: type-alias
+    body:
+      type: literal
+      value: someString
+  literalNumber:
+    declaration: type-alias
+    body:
+      type: literal
+      value: 9
+  normalObject:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: any
+  nestedObject:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        head:
+          type: object
+          properties:
+            cmd:
+              type: string
+            stat:
+              type: number
+        body:
+          type: number
+  normalArray:
+    declaration: type-alias
+    body:
+      type: array
+      items:
+        type: string
+  nestedArray:
+    declaration: type-alias
+    body:
+      type: array
+      items:
+        type: array
+        items:
+          type: number
+  objectArray:
+    declaration: type-alias
+    body:
+      type: array
+      items:
+        type: object
+        properties:
+          stat:
+            type: boolean
+  numberEnum:
+    declaration: enum
+    type: number
+    members:
+      - one: 1
+      - two: 2
+  stringEnum:
+    declaration: enum
+    type: string
+    members:
+      - h: Hello
+      - w: World
+  splitType:
+    declaration: type-alias
+    body:
+      type: split
+      ts:
+        type: number
+      go:
+        type: string
+  splitSide:
+    declaration: type-alias
+    body:
+      type: split
+      ts:
+        type: object
+        properties:
+          head:
+            type: boolean
+          body:
+            type: string

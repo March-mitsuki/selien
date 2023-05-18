@@ -1,0 +1,38 @@
+{
+  "name": "selien-monorepo",
+  "version": "0.1.0",
+  "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
+  "scripts": {
+    "prepare": "husky install",
+    "exec:core": "cd packages/core && exec",
+    "test": "cd packages/core && exec cargo insta test --review --bin selien",
+    "lint": "cd packages/core && exec cargo build --bin selien --verbose && cargo clippy -- -D warnings",
+    "debug": "cd packages/core && exec cargo build --bin selien --verbose && rust-gdb ./target/debug/selien gen",
+    "fmt": "cd packages/core && exec cargo fmt",
+    "build": "cd packages/core && exec cargo build --bin selien",
+    "build:release": "cd packages/core && exec cargo build --bin selien --release",
+    "build:release:darwin:aarch64": "cd packages/core && cargo build --bin selien --release && cp ./target/release/selien ../packages/aarch64-apple-darwin/bin/selien",
+    "build:verbose": "cd packages/core && exec cargo build --bin selien --verbose",
+    "selien": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien",
+    "gen": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen",
+    "gen:ts": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o ts",
+    "gen:go": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o go"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3"
+  },
+  "keywords": [
+    "rest-api",
+    "rest",
+    "websocket",
+    "interface",
+    "generator",
+    "ssot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/March-mitsuki/selien.git"
+  },
+  "homepage": "https://github.com/March-mitsuki/selien",
+  "license": "MIT"
+}

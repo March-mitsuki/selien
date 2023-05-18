@@ -1,0 +1,10 @@
+{
+  "[rust]": {
+    "editor.tabSize": 4
+  },
+  "[markdown]": {
+    "editor.tabSize": 3,
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+  },
+  "rust-analyzer.linkedProjects": ["./packages/core/Cargo.toml"]
+}

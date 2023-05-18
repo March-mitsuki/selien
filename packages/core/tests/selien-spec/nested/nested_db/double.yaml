@@ -1,0 +1,21 @@
+selien-version: 0.1.0
+definition:
+  nestedDbHere:
+    declaration: type-alias
+    body:
+      type: string
+  refMiddleRel:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "../middle#/definition/nestedHere"
+  refRootRel:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "../../test#/definition/customString"
+  refRootRelTwice:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "../../test#/definition/customNumber"

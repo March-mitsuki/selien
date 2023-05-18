@@ -1,0 +1,10 @@
+spec:
+  root: selien-spec
+output:
+  go:
+    modName: selien
+    output: dist/packages/go/selien_spec
+    tabsize: 2
+  ts:
+    output: dist/packages/ts/selien_spec
+    tabsize: 2

@@ -1,0 +1,21 @@
+selien-version: 0.1.0
+definition:
+  nestedHere:
+    declaration: type-alias
+    body:
+      type: string
+  refSelf:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "#/definition/nestedHere"
+  refOuter:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "../test#/definition/customString"
+  refInnerAbs:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "/nested/nested_db/double#/definition/nestedDbHere"
