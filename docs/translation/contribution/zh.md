@@ -12,7 +12,7 @@ generator 将 selien 的 AST 转换为特定语言的代码, 而 compiler 将他
 
 **generator**
 
-现有的 generator 实现你可以在 [这里看到](../../src/generator/lang/). 
+现有的 generator 实现你可以在 [这里看到](../../../packages/core/src/generator/lang/). 
 
 当你为新语言实现一个 generator 时，别忘了连测试一起写！ selien 使用 [insta](https://github.com/mitsuhiko/insta) 作为快照测试的库。当不是必要更改时, 现有快照不应该被轻易改动。
 
@@ -20,7 +20,7 @@ generator 将 selien 的 AST 转换为特定语言的代码, 而 compiler 将他
 
 **compiler**
 
-现有的 compiler 实现你可以在 [这里看到](../../src/compiler/)
+现有的 compiler 实现你可以在 [这里看到](../../../packages/core/src/compiler/)
 
 compiler 和 generator 有些不同, 虽然也是按照语言实现, 但并没有统一的大一统接口。你需要分别为每个语言实现`importer`和`special`等功能。
 
@@ -68,4 +68,10 @@ pnpm i && pnpm prepare
 pnpm test
 ```
 
-完全通过就代表没问题, 可以开始开发了
+完全通过就代表没问题, 可以开始开发了.
+
+# 代码结构
+
+主要代码在 [packages/core](../../../packages/core/)
+
+其他的包是为了未来使用 optionalDependencies 发布到 npm 时准备的.

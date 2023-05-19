@@ -159,7 +159,20 @@ git clone https://github.com/March-mitsuki/selien.git && cd selien
 
 然后运行下面这行命令从源代码构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
 ```sh
-cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is install to ~/.selien/bin'
+cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'
+```
+
+然后你可以选择添加 selien 命令到 path 中, 或者你也可以选择不添加, 每次从 `~/.selien/bin/selien` 来使用, 当然我们更推荐你一劳永逸的添加它。
+
+如果你要添加path, 那么根据你使用的 shell 不同你可能需要使用不同的命令:
+- bash
+  - `{ echo -e "\n# selien"; echo 'export SELIEN_HOME="$HOME/.selien/bin"'; echo 'export PATH="$SELIEN_HOME:$PATH"'; echo -e "# selien end\n" } >> ~/.bashrc && source ~/.bashrc`
+- zsh
+  - `{ echo -e "\n# selien"; echo 'export SELIEN_HOME="$HOME/.selien/bin"'; echo 'export PATH="$SELIEN_HOME:$PATH"'; echo -e "# selien end\n" } >> ~/.zshrc && source ~/.zshrc`
+
+然后你可以测试一下你的 selien 是否安装成功
+```sh
+selien --version
 ```
 
 **如果你是 Windows 用户**
@@ -167,6 +180,23 @@ cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mk
 那么请在 `powershell` 中运行 _下面这行_ 命令来构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
 ```powershell
 cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
+```
+
+然后你可以选择添加 selien 命令到 path 中, 或者你也可以选择不添加, 每次从 `~/.selien/bin/selien` 来使用, 当然我们更推荐你一劳永逸的添加它。
+
+如果你使用 windows, 那么你可能需要手动在 GUI 编辑器中修改你的 path 变量。下面是一个操作步骤的例子:
+
+1. 点击 windows 按钮, 在搜索框中输入 path
+2. 此时应该会出现一个 `控制面板 - 环境变量编辑` 的设定, 点击它
+3. 然后出现的面板右下角应该会有一个 `环境变量`, 点击它
+4. 点击之后你应该会看见新面板分为上下两个部分, 上面是 `用户环境变量`, 让我们修改上面的部分
+5. 在 `用户环境变量` 中找到 `Path`, 并且双击打开它
+6. 打开之后右边应该会有一串按钮, 让我们点击 `添加`, 并且输入`%USERPROFILE%\.selien\bin`
+7. 最后点击右下角的 `确定`
+
+重启你的 powershell 之后你应该可以看到 selien 已经被安装:
+```powershell
+selien --version
 ```
 
 # 贡献

@@ -163,11 +163,41 @@ Then run the following command to build Selien from the source code. The binary 
 cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'
 ```
 
+And you can choose to add the 'selien' command to the path, or you can choose not to add it and use it from `~/.selien/bin/selien` every time. However, we highly recommend adding it permanently.
+
+If you choose to add it to the path, you may need to use different commands depending on the shell you are using.
+- bash
+  - `{ echo -e "\n# selien"; echo 'export SELIEN_HOME="$HOME/.selien/bin"'; echo 'export PATH="$SELIEN_HOME:$PATH"'; echo -e "# selien end\n" } >> ~/.bashrc && source ~/.bashrc`
+- zsh
+  - `{ echo -e "\n# selien"; echo 'export SELIEN_HOME="$HOME/.selien/bin"'; echo 'export PATH="$SELIEN_HOME:$PATH"'; echo -e "# selien end\n" } >> ~/.zshrc && source ~/.zshrc`
+
+To test the installation, you can run the following cmd:
+```sh
+selien --version
+```
+
 **If you are using Windows**
 
 Please run the _command below_ in `powershell` to build Selien. The binary file will be in the `~/.selien/bin` directory thereafter.
 ```powershell
 cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
+```
+
+And you can choose to add the 'selien' command to the path, or you can choose not to add it and use it from `~/.selien/bin/selien` every time. However, we highly recommend adding it permanently.
+
+If you're using Windows, you may need to manually modify your 'Path' variable in a GUI editor. Here's an example of the steps:
+
+1. Click the Windows button and type 'path' in the search box.
+2. You should see an option called 'Control Panel - Edit the system environment variables.' Click on it.
+3. In the panel that appears, there should be an option at the bottom right called 'Environment Variables.' Click on it.
+4. After clicking, you should see a new panel divided into two sections: the top section is for 'User variables.' Let's modify that section.
+5. In the 'User variables' section, find 'Path' and double-click on it.
+6. Once opened, you should see a series of buttons on the right side. Click on 'Add' and enter `%USERPROFILE%\.selien\bin.`
+7. Finally, click 'OK' at the bottom right.
+
+Reopen your powershell to test the installation.
+```powershell
+selien --version
 ```
 
 # contribution

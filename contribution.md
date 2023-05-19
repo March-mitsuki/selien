@@ -18,7 +18,7 @@ What you need to do is implement the generator and compiler functionalities for 
 
 **Generator**
 
-You can see the existing generator implementations [here](./src/generator/lang/).
+You can see the existing generator implementations [here](./packages/core/src/generator/lang/).
 
 When implementing a generator for a new language, don't forget to write tests as well! Selien uses [insta](https://github.com/mitsuhiko/insta) as the library for snapshot testing. Existing snapshots should not be easily modified unless necessary.
 
@@ -26,7 +26,7 @@ Also, don't forget to add the invocation of your new implementation in the `matc
 
 Compiler
 
-You can see the existing compiler implementations [here](./src/compiler/).
+You can see the existing compiler implementations [here](./packages/core/src/compiler/).
 
 The compiler is different from the generator in that it doesn't have a unified interface for different languages. You need to separately implement functionalities like `importer` and `special` for each language.
 
@@ -79,3 +79,9 @@ pnpm test
 ```
 
 If all tests pass, it means everything is fine, and you can start development.
+
+# about code
+
+The main code here [packages/core](./packages/core/)
+
+The other packages are intended for future release to npm using optionalDependencies.
