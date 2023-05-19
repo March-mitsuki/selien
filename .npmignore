@@ -19,8 +19,5 @@ Cargo.lock
 # build file
 dist/
 
-# executables (not in npmignore)
-bin/
-
 # node_modules
 node_modules/

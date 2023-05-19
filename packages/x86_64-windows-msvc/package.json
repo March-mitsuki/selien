@@ -1,0 +1,9 @@
+{
+  "name": "@selien/x86_64-windows-msvc",
+  "version": "0.1.0",
+  "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
+  "license": "MIT",
+  "files": [
+    "bin"
+  ]
+}

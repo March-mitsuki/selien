@@ -1,0 +1,67 @@
+name: cross-build
+run-name: cross-build
+on:
+  workflow_dispatch:
+    input:
+      version:
+        description: "Input a release name"
+        required: true
+  push:
+    branchs:
+      - "main"
+    tags:
+      - "v*"
+env:
+  PROJECT_NAME: selien
+jobs:
+  build:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          # - aarch64-unknown-linux-gnu
+          - x86_64-apple-darwin
+          # - aarch64-apple-darwin
+          - x86_64-pc-windows-msvc
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          # - target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Setup code
+        uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --bin selien --release --target ${{ matrix.target }}
+
+      - name: Check build
+        run: ls target && cat target/release/selien
+
+      - name: Release manually
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == "workflow_dispatch"
+        with:
+          files: target/release/selien
+          tag_name: ${{ github.event.inputs.version }}
+
+      - name: Release automaticlly
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == "push"
+        with:
+          files: target/release/selien
+          tag_name: ${{ github.ref_name }}
