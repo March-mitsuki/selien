@@ -4,7 +4,7 @@ use log::error;
 
 use crate::{
     compiler::utils::go,
-    generator::types::Imports,
+    generator::types::{Import, Imports},
     path::{add_dot, diff_paths, normalize_path, to_relative},
     types::{config::Config, lang::SupportedLang},
 };
@@ -22,31 +22,62 @@ pub fn with_import(
         SupportedLang::Go => {
             let mut froms = String::new();
             imports.iter().enumerate().for_each(|(idx, import)| {
-                let mut f = process_from(lang, current, &import.from, config);
-                let is_last = idx == imports.len() - 1;
-                if !is_last {
-                    f += "\n"
-                }
+                match import {
+                    Import::Dyn(di) => {
+                        let o = config.output.go.as_ref().expect(
+                            "Maybe you want to generate Go code but forget to set it in config file.",
+                        );
+                        let indent = " ".repeat(o.tabsize);
+                        let mut f = format!("{}\"{}\"", indent, di.from);
+                        let is_last = idx == imports.len() - 1;
+                        if !is_last {
+                            f += "\n"
+                        }
 
-                froms += &f;
+                        froms += &f;
+                    }
+                    Import::Ref(ri) => {
+                        let mut f = process_from(lang, current, &ri.from, config);
+                        let is_last = idx == imports.len() - 1;
+                        if !is_last {
+                            f += "\n"
+                        }
+
+                        froms += &f;
+                    }
+                };
             });
             let s = format!("import (\n{}\n)\n\n", froms);
             result += &s;
         }
         SupportedLang::TypeScript => {
-            imports.iter().enumerate().for_each(|(idx, import)| {
-                let mut s = format!(
-                    "import {{ {} }} from \"{}\";\n",
-                    import.name,
-                    process_from(lang, current, &import.from, config)
-                );
-                let is_last = idx == imports.len() - 1;
-                if is_last {
-                    s += "\n"
-                }
+            imports
+                .iter()
+                .enumerate()
+                .for_each(|(idx, import)| match import {
+                    Import::Dyn(di) => {
+                        let mut s = format!("import {{ {} }} from \"{}\";\n", di.name, di.from,);
+                        let is_last = idx == imports.len() - 1;
+                        if is_last {
+                            s += "\n"
+                        }
 
-                result += &s;
-            });
+                        result += &s;
+                    }
+                    Import::Ref(ri) => {
+                        let mut s = format!(
+                            "import {{ {} }} from \"{}\";\n",
+                            ri.name,
+                            process_from(lang, current, &ri.from, config)
+                        );
+                        let is_last = idx == imports.len() - 1;
+                        if is_last {
+                            s += "\n"
+                        }
+
+                        result += &s;
+                    }
+                });
         }
     }
 

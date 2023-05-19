@@ -95,3 +95,40 @@ definition:
             type: boolean
           body:
             type: string
+  dynamicHead:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        token:
+          type: string
+  refDynamic:
+    declaration: type-alias
+    body:
+      type: split
+      ts:
+        type: object
+        properties:
+          head:
+            type: $ref
+            uri: "#/definition/dynamicHead"
+          body:
+            type: object
+            properties:
+              css:
+                type: $dyn
+                name: "CSSProperties"
+                from: "react"
+      go:
+        type: object
+        properties:
+          head:
+            type: $ref
+            uri: "#/definition/dynamicHead"
+          body:
+            type: object
+            properties:
+              css:
+                type: $dyn
+                name: "css"
+                from: "selien/api/types"

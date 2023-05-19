@@ -21,7 +21,7 @@ Inspire by [openAPI](https://www.openapis.org/).
 
 # 如何使用
 
-要解释语法, 首先我们需要解释我们的文件姐结构。在开始写你的第一个 selien 文件之前, 我们需要指定一个文件夹作为`root`文件夹。所有的类型定义都从这里开始。
+要解释语法, 首先我们需要解释我们的文件姐结构。在开始写你的第一个 selien 文件之前, 我们需要指定一个文件夹作为`selien-root`文件夹。所有的类型定义都从这里开始。
 
 例如你有一个`src`文件夹作为你的主目录, 你可以在其下面建立一个叫做`selien-spec`的文件夹, 然后在里面创建 yaml 文件。或者继续在下面建立文件夹。
 
@@ -132,3 +132,40 @@ type CustomString string
 - enum
   - go -> a special type and const block
   - ts -> enum
+
+# 安装
+
+截止目前为止 (v0.1.x), 你有两种方式来安装 selien 到你的主机。
+1. (推荐) 自行从源代码构建
+2. 从 github release 下载二进制文件, 并且自己添加 path. (不推荐, 因为可能会有一些电子签名问题导致报错.)
+   
+这里仅介绍从源代码进行构建的方式。
+
+**从源代码构建:**
+
+首先你需要安装有 `rust`, 如果你还没有安装, 请遵循官方的安装步骤进行安装, 详情看 [这里](https://www.rust-lang.org/)
+
+检查自己是否已经安装了 `rust` 可以运行下面这个命令:
+```sh
+rustup --version
+```
+
+然后你需要 clone 这个仓库 然后进入文件夹:
+```sh
+git clone https://github.com/March-mitsuki/selien.git && cd selien
+```
+
+然后运行下面这行命令从源代码构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
+```sh
+cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is install to ~/.selien/bin'
+```
+
+**如果你是windows用户**
+那么请在 `powershell` 中运行 _下面这行_ 命令来构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
+```powershell
+cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
+```
+
+# 贡献
+
+看 [这里](../contribute/zh.md)

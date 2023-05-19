@@ -215,9 +215,7 @@ fn transfrom_type_alias(
         }
         Some("array") => {
             let mut array_node = ast_type_alias::ArrayNode {
-                items: Box::new(ast_type_alias::Node::Array(ast_type_alias::ArrayNode {
-                    items: Box::new(ast_type_alias::Node::new()),
-                })),
+                items: Box::new(ast_type_alias::Node::new()),
             };
 
             let items = match def.body.get("items") {
@@ -311,7 +309,7 @@ fn transfrom_type_alias(
             }
         }
         Some("$ref") => {
-            let uri = match def.body.get("uri") {
+            let v_uri = match def.body.get("uri") {
                 Some(v) => v,
                 None => {
                     error!(
@@ -325,9 +323,9 @@ fn transfrom_type_alias(
                     }
                 }
             };
-            if let serde_yaml::Value::String(u) = uri {
-                let name = u.split('/').last().unwrap().to_string();
-                let path = u.split('#').next().unwrap().to_string();
+            if let serde_yaml::Value::String(uri) = v_uri {
+                let name = uri.split('/').last().unwrap().to_string();
+                let path = uri.split('#').next().unwrap().to_string();
 
                 let mut body = ast_type_alias::Node::Ref(ast_type_alias::RefNode { name, path });
                 body = change_body_if_split(body, split);
@@ -347,6 +345,76 @@ fn transfrom_type_alias(
                     std::process::exit(1);
                 }
             }
+        }
+        Some("$dyn") => {
+            let v_name = match def.body.get("name") {
+                Some(v) => v,
+                None => {
+                    error!(
+                        "Syntax error: missing name in dyn definition: {}.",
+                        def.identifier
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let v_from = match def.body.get("from") {
+                Some(v) => v,
+                None => {
+                    error!(
+                        "Syntax error: missing from in dyn definition: {}.",
+                        def.identifier
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            let name = match v_name {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!(
+                        "Syntax error: invalid name in dyn definition: {}.",
+                        def.identifier
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let from = match v_from {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!(
+                        "Syntax error: invalid from in dyn definition: {}.",
+                        def.identifier
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            let mut body = ast_type_alias::Node::Dyn(ast_type_alias::DynNode {
+                name: name.to_string(),
+                from: from.to_string(),
+            });
+            body = change_body_if_split(body, split);
+
+            ast_list.push(AST::TypeAlias(ast_type_alias::TypeAliasAst {
+                identifier: def.identifier.clone(),
+                body,
+            }));
         }
         Some("split") => {
             if split.is_some() {
@@ -467,7 +535,10 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
                 let properties = match value.get("properties") {
                     Some(r) => r,
                     None => {
-                        error!("Syntax error: missing properties in definition.");
+                        error!(
+                            "Syntax error: missing properties in definition: {:?}",
+                            value
+                        );
                         if crate::is_dev() {
                             panic!();
                         } else {
@@ -479,7 +550,10 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
                 if let serde_yaml::Value::Mapping(map) = properties {
                     visit_properties(map, &mut obj_node);
                 } else {
-                    error!("Syntax error: invalid properties in definition.");
+                    error!(
+                        "Syntax error: invalid properties in definition: {:?}",
+                        value
+                    );
                     if crate::is_dev() {
                         panic!();
                     } else {
@@ -489,7 +563,180 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
 
                 property.body = ast_type_alias::Node::Object(obj_node);
             }
-            Some("array") => {}
+            Some("array") => {
+                let mut array_node = ast_type_alias::ArrayNode {
+                    items: Box::new(ast_type_alias::Node::new()),
+                };
+
+                let items = match value.get("items") {
+                    Some(r) => r,
+                    None => {
+                        error!(
+                            "Syntax error: missing items in object array properties: {:?}",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+
+                if let serde_yaml::Value::Mapping(map) = items {
+                    visit_items(map, &key.as_str().unwrap().to_string(), &mut array_node);
+                } else {
+                    error!(
+                        "Syntax error: invalid items in object array properties: {:?}",
+                        value
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+
+                property.body = ast_type_alias::Node::Array(array_node);
+            }
+            Some("literal") => {
+                let literal_value = match value.get("value") {
+                    Some(v) => v,
+                    None => {
+                        error!(
+                            "Syntax error: missing value in object literal properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+                match literal_value {
+                    serde_yaml::Value::String(v) => {
+                        property.body = ast_type_alias::Node::StringLiteral(
+                            ast_type_alias::StringLiteralNode { value: v.clone() },
+                        );
+                    }
+                    serde_yaml::Value::Number(v) => {
+                        property.body = ast_type_alias::Node::NumberLiteral(
+                            ast_type_alias::NumberLiteralNode {
+                                value: v.to_string(),
+                            },
+                        );
+                    }
+                    _ => {
+                        error!(
+                            "Syntax error: invalid value in object literal properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                }
+            }
+            Some("$ref") => {
+                let v_uri = match value.get("uri") {
+                    Some(v) => v,
+                    None => {
+                        error!(
+                            "Syntax error: missing uri in object ref proerties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+                if let serde_yaml::Value::String(uri) = v_uri {
+                    let name = uri.split('/').last().unwrap().to_string();
+                    let path = uri.split('#').next().unwrap().to_string();
+
+                    property.body =
+                        ast_type_alias::Node::Ref(ast_type_alias::RefNode { name, path });
+                } else {
+                    error!(
+                        "Syntax error: invalid uri in object ref proerties: {:?}.",
+                        value
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            }
+            Some("$dyn") => {
+                let v_name = match value.get("name") {
+                    Some(v) => v,
+                    None => {
+                        error!(
+                            "Syntax error: missing name in object dyn properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+                let v_from = match value.get("from") {
+                    Some(v) => v,
+                    None => {
+                        error!(
+                            "Syntax error: missing from in object dyn properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+
+                let name = match v_name {
+                    serde_yaml::Value::String(v) => v,
+                    _ => {
+                        error!(
+                            "Syntax error: invalid name in object dyn properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+                let from = match v_from {
+                    serde_yaml::Value::String(v) => v,
+                    _ => {
+                        error!(
+                            "Syntax error: invalid from in object dyn properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+
+                property.body = ast_type_alias::Node::Dyn(ast_type_alias::DynNode {
+                    name: name.to_string(),
+                    from: from.to_string(),
+                });
+            }
             _ => {
                 error!(
                     "Syntax error: invalid type in object definition: {:?}.",
@@ -597,6 +844,128 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
             }
 
             node.items = Box::new(ast_type_alias::Node::Array(_items_node));
+        }
+        Some("lietral") => {
+            let literal_value = match i.get("value") {
+                Some(v) => v,
+                None => {
+                    error!(
+                        "Syntax error: missing value in array literal item: {:?}.",
+                        i
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            match literal_value {
+                serde_yaml::Value::String(v) => {
+                    node.items = Box::new(ast_type_alias::Node::StringLiteral(
+                        ast_type_alias::StringLiteralNode { value: v.clone() },
+                    ));
+                }
+                serde_yaml::Value::Number(v) => {
+                    node.items = Box::new(ast_type_alias::Node::NumberLiteral(
+                        ast_type_alias::NumberLiteralNode {
+                            value: v.to_string(),
+                        },
+                    ));
+                }
+                _ => {
+                    error!(
+                        "Syntax error: invalid value in array literal item: {:?}.",
+                        i
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            }
+        }
+        Some("$ref") => {
+            let v_uri = match i.get("uri") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing uri in array ref items: {:?}.", i);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            if let serde_yaml::Value::String(uri) = v_uri {
+                let name = uri.split('/').last().unwrap().to_string();
+                let path = uri.split('#').next().unwrap().to_string();
+
+                node.items = Box::new(ast_type_alias::Node::Ref(ast_type_alias::RefNode {
+                    name,
+                    path,
+                }));
+            } else {
+                error!("Syntax error: invalid uri in array ref items: {:?}.", i);
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+        }
+        Some("$dyn") => {
+            let v_name = match i.get("name") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing name in array dyn items: {:?}.", i);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let v_from = match i.get("from") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing from in array dyn items: {:?}.", i);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            let name = match v_name {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!("Syntax error: invalid name in array dyn items: {:?}.", i);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let from = match v_from {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!("Syntax error: invalid from in array dyn items: {:?}.", i);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            node.items = Box::new(ast_type_alias::Node::Dyn(ast_type_alias::DynNode {
+                name: name.to_string(),
+                from: from.to_string(),
+            }));
         }
         _ => {
             error!("Syntax error: invalid type in array definition: {}.", id);

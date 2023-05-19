@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use log::error;
 
 use super::super::types::{
@@ -7,7 +9,7 @@ use super::super::types::{
 };
 use crate::{
     generator::{
-        types::{Import, Imports},
+        types::{DynImport, Import, Imports, RefImport},
         utils::capitalize,
     },
     types::lang::SupportedLang,
@@ -109,11 +111,26 @@ pub fn generate_go(ast: &AST, imports: &mut Imports, tabsize: usize) -> String {
                             capitalize(&node.name)
                         );
 
-                        imports.push(Import {
+                        imports.push(Import::Ref(RefImport {
                             name: capitalize(&node.name),
                             from: node.path.clone(),
-                        });
+                        }));
                     }
+
+                    result += &s;
+                }
+                Node::Dyn(node) => {
+                    let fp = PathBuf::from(&node.from);
+                    let s = format!(
+                        "type {} {}.{}\n",
+                        capitalize(&type_alias_ast.identifier),
+                        fp.file_name().unwrap().to_str().unwrap(),
+                        capitalize(&node.name)
+                    );
+                    imports.push(Import::Dyn(DynImport {
+                        name: node.name.clone(),
+                        from: node.from.clone(),
+                    }));
 
                     result += &s;
                 }
@@ -249,12 +266,32 @@ fn iterate_properties(
                     &p.identifier
                 );
 
-                imports.push(Import {
+                imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
                     from: node.path.clone(),
-                });
+                }));
             }
             result += &s
+        }
+        Node::Dyn(node) => {
+            let fp = PathBuf::from(&node.from);
+            let mut s = format!(
+                "{}{} {}.{} `json:\"{}\"`",
+                indent,
+                capitalize(&p.identifier),
+                fp.file_name().unwrap().to_str().unwrap(),
+                capitalize(&node.name),
+                &p.identifier,
+            );
+            if !is_last {
+                s += "\n"
+            }
+            imports.push(Import::Dyn(DynImport {
+                name: node.name.clone(),
+                from: node.from.clone(),
+            }));
+
+            result += &s;
         }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");
@@ -304,12 +341,27 @@ fn iterate_array(imports: &mut Imports, node: &Node, tabsize: usize) -> String {
                 let ref_token = format!("[selien-ref]{}[selien-ref]", node.path);
                 s = format!("{}.{}", ref_token, capitalize(&node.name));
 
-                imports.push(Import {
+                imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
                     from: node.path.clone(),
-                });
+                }));
             }
+
             result += &s
+        }
+        Node::Dyn(node) => {
+            let fp = PathBuf::from(&node.from);
+            let s = format!(
+                "{}.{}",
+                fp.file_name().unwrap().to_str().unwrap(),
+                capitalize(&node.name),
+            );
+            imports.push(Import::Dyn(DynImport {
+                name: node.name.clone(),
+                from: node.from.clone(),
+            }));
+
+            result += &s;
         }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");

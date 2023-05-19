@@ -7,7 +7,7 @@ use super::super::types::{
 };
 use crate::{
     generator::{
-        types::{Import, Imports},
+        types::{DynImport, Import, Imports, RefImport},
         utils::capitalize,
     },
     types::lang::SupportedLang,
@@ -81,11 +81,24 @@ pub fn generate_typescript(ast: &AST, imports: &mut Imports, tabsize: usize) -> 
                     capitalize(&node.name)
                 );
                 if !node.path.is_empty() {
-                    imports.push(Import {
+                    imports.push(Import::Ref(RefImport {
                         name: capitalize(&node.name),
                         from: node.path.clone(),
-                    });
+                    }));
                 }
+                result += &s;
+            }
+            Node::Dyn(node) => {
+                let s = format!(
+                    "export type {} = {}\n",
+                    capitalize(&type_alias_ast.identifier),
+                    capitalize(&node.name)
+                );
+                imports.push(Import::Dyn(DynImport {
+                    name: node.name.clone(),
+                    from: node.from.clone(),
+                }));
+
                 result += &s;
             }
             Node::Split(split) => {
@@ -193,12 +206,24 @@ fn iterate_properties(
                 s += "\n"
             }
             if !node.path.is_empty() {
-                imports.push(Import {
+                imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
                     from: node.path.clone(),
-                });
+                }));
             }
             result += &s
+        }
+        Node::Dyn(node) => {
+            let mut s = format!("{}{}: {};", indent, &p.identifier, &node.name,);
+            if !is_last {
+                s += "\n"
+            }
+            imports.push(Import::Dyn(DynImport {
+                name: node.name.clone(),
+                from: node.from.clone(),
+            }));
+
+            result += &s;
         }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");
@@ -253,12 +278,20 @@ fn iterate_array(imports: &mut Imports, n: &Node, tabsize: usize) -> String {
         }
         Node::Ref(node) => {
             if !node.path.is_empty() {
-                imports.push(Import {
+                imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
                     from: node.path.clone(),
-                });
+                }));
             }
             result += &capitalize(&node.name);
+        }
+        Node::Dyn(node) => {
+            imports.push(Import::Dyn(DynImport {
+                name: node.name.clone(),
+                from: node.from.clone(),
+            }));
+
+            result += &node.name;
         }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");

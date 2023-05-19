@@ -45,6 +45,12 @@ pub mod ast_type_alias {
     }
 
     #[derive(Debug, Clone)]
+    pub struct DynNode {
+        pub name: String,
+        pub from: String,
+    }
+
+    #[derive(Debug, Clone)]
     pub struct SplitNode {
         pub typescript: Option<Box<Node>>,
         pub go: Option<Box<Node>>,
@@ -58,6 +64,7 @@ pub mod ast_type_alias {
         Array(ArrayNode),
         Object(ObjectNode),
         Ref(RefNode),
+        Dyn(DynNode),
         Split(SplitNode),
         Empty,
     }
@@ -106,10 +113,23 @@ pub enum AST {
 }
 
 #[derive(Debug)]
-pub struct Import {
+pub struct RefImport {
     pub name: String,
     pub from: String,
 }
+
+#[derive(Debug)]
+pub struct DynImport {
+    pub name: String,
+    pub from: String,
+}
+
+#[derive(Debug)]
+pub enum Import {
+    Ref(RefImport),
+    Dyn(DynImport),
+}
+
 pub type Imports = Vec<Import>;
 
 pub struct TabSize {

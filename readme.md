@@ -10,19 +10,19 @@ A tool for automatically generating type definitions from a **single source** fi
 
 Inspire by [openAPI](https://www.openapis.org/).
 
-- **What it does**
+- **What selien does**
   - Helps you generate type definitions across languages by writing YAML files according to conventions.
   - Improves the quality of your cross-language code by following the rules of a single trusted source.
-- **What it is not**
-  - It is not a replacement for openAPI or similar tools like gRPC.
-  - It doesn't handle as many things as openAPI does. It only focuses on generating type definitions, and you are responsible for the rest of the logic.
+- **What selien is not**
+  - Selien is not a replacement for openAPI or similar tools like gRPC.
+  - Selien doesn't handle as many things as openAPI does. It only focuses on generating type definitions, and you are responsible for the other logic.
 - **Currently supported languages**
   - typescript
   - go
 
 # How to use
 
-To explain the syntax, we first need to explain our file structure. Before you start writing your first selien file, you need to specify a folder as the `root` folder. All type definitions start from here.
+To explain the syntax, we first need to explain our file structure. Before you start writing your first selien file, you need to specify a folder as the `selien-root` folder. All type definitions start from here.
 
 For example, if you have an `my_project` folder as your project root directory, you can create a folder called `selien-spec `inside it and create YAML files inside that folder. Alternatively, you can continue creating folders below.
 
@@ -46,7 +46,7 @@ Then, you need to create a file named `selien.config.yaml` in your `<project-roo
 
 ```yaml
 spec:
-  root: selien-spec # Points to your selien root folder. When it is a folder, selien will look for the selien.config.yaml file in that folder. When given a file path, selien will use that file directly. When given a relative path, selien will perform the above steps in the current working directory.
+  root: selien-spec # Path to your selien root folder. When it is a folder, selien will look for the selien.config.yaml file in that folder. When given a file path, selien will use that file directly. When given a relative path, selien will perform the above steps in the current working directory.
 output:
   go: # Accepts go or golang. If both are defined, only the first definition will take effect.
     modName: github.com/March-mitsuki/selien # Your golang mod name
@@ -57,7 +57,7 @@ output:
     tabsize: 2 # The default tabsize for typescript is 2.
 ```
 
-- selien will automatically interpret the paths specified in the folder and maintain their structure.
+- selien will automatically interpret the paths specified in the folder and keep their structure.
   - For example, when generating TypeScript code with selien, all the types defined in `<selien-root>/rest/api.yaml`will be generated into `<ts-output>/rest/api.ts`.
 
 Now, let's finally look at the syntax. We'll start with a simple example.
@@ -133,5 +133,38 @@ That's it! It's quite simple, isn't it? If you want to learn more about the synt
   - go -> a special type and const block
   - ts -> enum
 
-# contribute
-see [contribute](./contribution.md)
+# install
+
+As of now (v0.1.x), there are two ways to install Selien onto your host.
+1. (Recommended) Build from the source code.
+2. Download the binary file from GitHub release and add the path yourself. (Not recommended as there may be some electronic signature issues that could cause errors.)
+
+This guide will only cover how to build from the source code.
+
+**Building from the source code:**
+
+First, you need to have `rust` installed. If you haven't done so, please follow the official installation steps, see [here](https://www.rust-lang.org/)
+
+You can check if you've already installed `rust` by running the command below:
+```sh
+rustup --version
+```
+
+Next, you need to clone this repository and enter the directory:
+```sh
+git clone https://github.com/March-mitsuki/selien.git && cd selien
+```
+
+Then run the following command to build Selien from the source code. The binary file will be located in the `~/.selien/bin` directory after that.
+```sh
+cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'
+```
+
+**If you are a Windows user**
+Please run the _command below_ in `powershell` to build Selien. The binary file will be in the `~/.selien/bin` directory thereafter.
+```powershell
+cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
+```
+
+# contribution
+see [contribution](./contribution.md)
