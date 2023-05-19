@@ -185,7 +185,7 @@ selien --version
 
 Please run the _command below_ in `powershell` to build Selien. The binary file will be in the `~/.selien/bin` directory thereafter.
 ```powershell
-cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
+cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }; if ($?) { echo 'Selien is installed to ~/.selien/bin' }
 ```
 
 And you can choose to add the 'selien' command to the path, or you can choose not to add it and use it from `~/.selien/bin/selien` every time. However, we highly recommend adding it permanently.
@@ -205,5 +205,23 @@ Reopen your powershell to test the installation.
 selien --version
 ```
 
+## update
+
+If you build selien from source, update will be very simple.
+
+One, enter your cloned selien git repo, and pull a new version.
+```sh
+cd /path/to/selien && git pull
+```
+
+Two, run the commands used in the install again.
+- Unix-like
+  - `cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'`
+- Windows
+  - `cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }; if ($?) { echo 'Selien is installed to ~/.selien/bin' }`
+
+That's it. Now you have a updated selien.
+
 # contribution
+
 see [contribution](./contribution.md)

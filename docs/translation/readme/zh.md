@@ -204,6 +204,23 @@ cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -P
 selien --version
 ```
 
+## 升级
+
+如果你是通过源代码构建的 selien，那么升级将会变的非常简单。
+
+首先，进入你 clone 了的仓库，从远端 pull 新版本到本地。
+```sh
+cd /path/to/selien && git pull
+```
+
+然后，再跑一遍安装时候的命令。
+- Unix-like
+  - `cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'`
+- Windows
+  - `cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }; if ($?) { echo 'Selien is installed to ~/.selien/bin' }`
+
+结束，你成功升级了你的 selien
+
 # 贡献
 
 看 [这里](../contribute/zh.md)
