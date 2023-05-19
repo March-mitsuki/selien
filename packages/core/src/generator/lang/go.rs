@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use log::error;
+use log::{error, warn};
 
 use super::super::types::{
     ast_enum,
@@ -132,6 +132,15 @@ pub fn generate_go(ast: &AST, imports: &mut Imports, tabsize: usize) -> String {
                         from: node.from.clone(),
                     }));
 
+                    result += &s;
+                }
+                Node::Union(_) => {
+                    let id = capitalize(&type_alias_ast.identifier);
+                    warn!(
+                        "Union type '{}' using in golang. interface{{}} type will be generated.",
+                        &id
+                    );
+                    let s = format!("type {} interface{{}}\n", id);
                     result += &s;
                 }
                 Node::Split(split) => {
@@ -293,6 +302,21 @@ fn iterate_properties(
 
             result += &s;
         }
+        Node::Union(_) => {
+            let id = capitalize(&p.identifier);
+            warn!(
+                "Union type '{}' using in golang object type. interface{{}} type will be generated.",
+                &id
+            );
+            let mut s = format!(
+                "{}{} interface{{}} `json:\"{}\"`",
+                indent, id, &p.identifier
+            );
+            if !is_last {
+                s += "\n"
+            }
+            result += &s;
+        }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");
             if crate::is_dev() {
@@ -362,6 +386,10 @@ fn iterate_array(imports: &mut Imports, node: &Node, tabsize: usize) -> String {
             }));
 
             result += &s;
+        }
+        Node::Union(_) => {
+            warn!("Union type using in golang array type. interface{{}} type will be generated.");
+            result += "interface{}"
         }
         Node::Split(_) => {
             error!("Split-type can only use on top-level.");

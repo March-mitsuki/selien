@@ -452,9 +452,64 @@ fn transfrom_type_alias(
                 }
             }
         }
+        Some("union") => {
+            let mut union_node = ast_type_alias::UnionNode { types: vec![] };
+
+            let v_types = match def.body.get("types") {
+                Some(v) => v,
+                None => {
+                    error!(
+                        "Syntax error: missing types in union definition: {}.",
+                        def.identifier
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            if let serde_yaml::Value::Sequence(seq) = v_types {
+                for v in seq {
+                    if let serde_yaml::Value::Mapping(m) = v {
+                        visit_union_types(m, &def.identifier, &mut union_node);
+                    } else {
+                        error!(
+                            "Syntax error: invalid types in union definition: {}.",
+                            def.identifier
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                }
+            } else {
+                error!(
+                    "Syntax error: invalid types in union definition: {}.",
+                    def.identifier
+                );
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+
+            let mut body = ast_type_alias::Node::Union(union_node);
+            body = change_body_if_split(body, split);
+
+            ast_list.push(AST::TypeAlias(ast_type_alias::TypeAliasAst {
+                identifier: def.identifier.clone(),
+                body,
+            }));
+        }
         _ => {
             error!(
-                "Syntax error: invalid type in definition: {}.",
+                "Syntax error: invalid type {} in definition: {}.",
+                body_type.as_str().expect("Syntax error in definition."),
                 def.identifier
             );
             if crate::is_dev() {
@@ -584,7 +639,7 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
                 };
 
                 if let serde_yaml::Value::Mapping(map) = items {
-                    visit_items(map, &key.as_str().unwrap().to_string(), &mut array_node);
+                    visit_items(map, key.as_str().unwrap(), &mut array_node);
                 } else {
                     error!(
                         "Syntax error: invalid items in object array properties: {:?}",
@@ -737,6 +792,54 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
                     from: from.to_string(),
                 });
             }
+            Some("union") => {
+                let mut union_node = ast_type_alias::UnionNode { types: vec![] };
+
+                let v_types = match value.get("types") {
+                    Some(v) => v,
+                    None => {
+                        error!(
+                            "Syntax error: missing types in object union properties: {:?}.",
+                            value
+                        );
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                };
+
+                if let serde_yaml::Value::Sequence(types) = v_types {
+                    for t in types {
+                        if let serde_yaml::Value::Mapping(map) = t {
+                            visit_union_types(map, key.as_str().unwrap(), &mut union_node);
+                        } else {
+                            error!(
+                                "Syntax error: invalid types in object union properties: {:?}",
+                                value
+                            );
+                            if crate::is_dev() {
+                                panic!();
+                            } else {
+                                std::process::exit(1);
+                            }
+                        }
+                    }
+                } else {
+                    error!(
+                        "Syntax error: invalid types in object union properties: {:?}",
+                        value
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+
+                property.body = ast_type_alias::Node::Union(union_node);
+            }
             _ => {
                 error!(
                     "Syntax error: invalid type in object definition: {:?}.",
@@ -754,7 +857,7 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
     }
 }
 
-fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::ArrayNode) {
+fn visit_items(i: &serde_yaml::Mapping, id: &str, node: &mut ast_type_alias::ArrayNode) {
     let items_type = match i.get("type") {
         Some(r) => r,
         None => {
@@ -816,11 +919,11 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
             node.items = Box::new(ast_type_alias::Node::Object(obj_node));
         }
         Some("array") => {
-            let mut _items_node = ast_type_alias::ArrayNode {
+            let mut arr_node = ast_type_alias::ArrayNode {
                 items: Box::new(ast_type_alias::Node::new()),
             };
 
-            let _items = match i.get("items") {
+            let items = match i.get("items") {
                 Some(r) => r,
                 None => {
                     error!("Syntax error: missing nested items in definition: {}.", id);
@@ -832,8 +935,8 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
                 }
             };
 
-            if let serde_yaml::Value::Mapping(map) = _items {
-                visit_items(map, id, &mut _items_node);
+            if let serde_yaml::Value::Mapping(map) = items {
+                visit_items(map, id, &mut arr_node);
             } else {
                 error!("Syntax error: invalid nested items in definition: {}.", id);
                 if crate::is_dev() {
@@ -843,16 +946,13 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
                 }
             }
 
-            node.items = Box::new(ast_type_alias::Node::Array(_items_node));
+            node.items = Box::new(ast_type_alias::Node::Array(arr_node));
         }
         Some("lietral") => {
             let literal_value = match i.get("value") {
                 Some(v) => v,
                 None => {
-                    error!(
-                        "Syntax error: missing value in array literal item: {:?}.",
-                        i
-                    );
+                    error!("Syntax error: missing value in array literal item: {}.", id);
                     if crate::is_dev() {
                         panic!();
                     } else {
@@ -874,10 +974,7 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
                     ));
                 }
                 _ => {
-                    error!(
-                        "Syntax error: invalid value in array literal item: {:?}.",
-                        i
-                    );
+                    error!("Syntax error: invalid value in array literal item: {}.", id);
                     if crate::is_dev() {
                         panic!();
                     } else {
@@ -967,8 +1064,285 @@ fn visit_items(i: &serde_yaml::Mapping, id: &String, node: &mut ast_type_alias::
                 from: from.to_string(),
             }));
         }
+        Some("union") => {
+            let mut union_node = ast_type_alias::UnionNode { types: vec![] };
+
+            let v_types = match i.get("types") {
+                Some(r) => r,
+                None => {
+                    error!("Syntax error: missing types in union definition: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            if let serde_yaml::Value::Sequence(seq) = v_types {
+                for t in seq {
+                    if let serde_yaml::Value::Mapping(map) = t {
+                        visit_union_types(map, id, &mut union_node);
+                    } else {
+                        error!("Syntax error: invalid types in union definition: {}.", id);
+                        if crate::is_dev() {
+                            panic!();
+                        } else {
+                            std::process::exit(1);
+                        }
+                    }
+                }
+            } else {
+                error!("Syntax error: invalid types in union definition: {}.", id);
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+
+            node.items = Box::new(ast_type_alias::Node::Union(union_node));
+        }
         _ => {
             error!("Syntax error: invalid type in array definition: {}.", id);
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+    }
+}
+
+fn visit_union_types(t: &serde_yaml::Mapping, id: &str, node: &mut ast_type_alias::UnionNode) {
+    let tp = match t.get("type") {
+        Some(v) => v,
+        None => {
+            error!("Syntax error: missing type in union definition: {}.", id);
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+    };
+
+    match tp.as_str() {
+        Some("string") => {
+            node.types
+                .push(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
+                    value: ast_type_alias::Keywords::String,
+                }));
+        }
+        Some("number") => {
+            node.types
+                .push(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
+                    value: ast_type_alias::Keywords::Number,
+                }));
+        }
+        Some("boolean") => {
+            node.types
+                .push(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
+                    value: ast_type_alias::Keywords::Boolean,
+                }));
+        }
+        Some("any") => {
+            node.types
+                .push(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
+                    value: ast_type_alias::Keywords::Any,
+                }));
+        }
+        Some("object") => {
+            let mut obj_node = ast_type_alias::ObjectNode { values: vec![] };
+            let properties = match t.get("properties") {
+                Some(v) => v,
+                None => {
+                    error!(
+                        "Syntax error: missing properties in object definition: {}.",
+                        id
+                    );
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            if let serde_yaml::Value::Mapping(map) = properties {
+                visit_properties(map, &mut obj_node);
+            } else {
+                error!(
+                    "Syntax error: invalid properties in object definition: {}.",
+                    id
+                );
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+
+            node.types.push(ast_type_alias::Node::Object(obj_node));
+        }
+        Some("array") => {
+            let mut arr_node = ast_type_alias::ArrayNode {
+                items: Box::new(ast_type_alias::Node::new()),
+            };
+            let items = match t.get("items") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing items in union.array: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            if let serde_yaml::Value::Mapping(map) = items {
+                visit_items(map, id, &mut arr_node);
+            } else {
+                error!("Syntax error: invalid items in array definition: {}.", id);
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+
+            node.types.push(ast_type_alias::Node::Array(arr_node));
+        }
+        Some("literal") => {
+            let literal_value = match t.get("value") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing value in union.literal: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            match literal_value {
+                serde_yaml::Value::String(v) => {
+                    node.types.push(ast_type_alias::Node::StringLiteral(
+                        ast_type_alias::StringLiteralNode { value: v.clone() },
+                    ));
+                }
+                serde_yaml::Value::Number(v) => {
+                    node.types.push(ast_type_alias::Node::NumberLiteral(
+                        ast_type_alias::NumberLiteralNode {
+                            value: v.to_string(),
+                        },
+                    ));
+                }
+                _ => {
+                    error!("Syntax error: invalid value in union.literal: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            }
+        }
+        Some("$ref") => {
+            let v_uri = match t.get("uri") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing uri in union.$ref: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            if let serde_yaml::Value::String(uri) = v_uri {
+                let name = uri.split('/').last().unwrap().to_string();
+                let path = uri.split('#').next().unwrap().to_string();
+
+                node.types
+                    .push(ast_type_alias::Node::Ref(ast_type_alias::RefNode {
+                        name,
+                        path,
+                    }));
+            } else {
+                error!("Syntax error: invalid uri in union.$ref: {}.", id);
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
+        }
+        Some("$dyn") => {
+            let v_name = match t.get("name") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing name in union.$dyn: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let v_from = match t.get("from") {
+                Some(v) => v,
+                None => {
+                    error!("Syntax error: missing from in union.$dyn: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            let name = match v_name {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!("Syntax error: invalid name in union.$dyn: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let from = match v_from {
+                serde_yaml::Value::String(v) => v,
+                _ => {
+                    error!("Syntax error: invalid from in union.$dyn: {}.", id);
+                    if crate::is_dev() {
+                        panic!();
+                    } else {
+                        std::process::exit(1);
+                    }
+                }
+            };
+
+            node.types
+                .push(ast_type_alias::Node::Dyn(ast_type_alias::DynNode {
+                    name: name.to_string(),
+                    from: from.to_string(),
+                }));
+        }
+        Some("uniton") => {
+            error!("Syntax error: use uniton nested in a union: {}.", id);
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+        _ => {
+            error!("Syntax error: invalid type in union definition: {}.", id);
             if crate::is_dev() {
                 panic!();
             } else {

@@ -132,3 +132,11 @@ definition:
                 type: $dyn
                 name: "css"
                 from: "selien/api/types"
+  unionType:
+    declaration: type-alias
+    body:
+      type: union
+      types:
+        - type: $ref
+          uri: "#/definition/objectArray"
+        - type: string

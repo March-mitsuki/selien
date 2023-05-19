@@ -51,6 +51,11 @@ pub mod ast_type_alias {
     }
 
     #[derive(Debug, Clone)]
+    pub struct UnionNode {
+        pub types: Vec<Node>,
+    }
+
+    #[derive(Debug, Clone)]
     pub struct SplitNode {
         pub typescript: Option<Box<Node>>,
         pub go: Option<Box<Node>>,
@@ -65,6 +70,7 @@ pub mod ast_type_alias {
         Object(ObjectNode),
         Ref(RefNode),
         Dyn(DynNode),
+        Union(UnionNode),
         Split(SplitNode),
         Empty,
     }

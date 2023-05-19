@@ -128,17 +128,22 @@ That's it! It's quite simple, isn't it? If you want to learn more about the synt
     - ts -> string literal
   - $ref
     - Supports reusing previously defined types. See [example](./example/spec/ref.md)
+  - $dyn
+    - Supports dynamic import. See [example](./example/spec/dyn.md)
+  - union
+    - go -> interface{}
+    - ts -> union type
   - split
     - Supports separating type definitions for different languages. See [example](./example/spec/split.md)
 - enum
-  - go -> a special type and const block
+  - go -> a special type and const block, see [example](./example/spec/enum.md)
   - ts -> enum
 
 # install
 
 As of now (v0.1.x), there are two ways to install Selien onto your host.
 1. (Recommended) Build from the source code.
-2. Download the binary file from GitHub release and add the path yourself. (Not recommended as there may be some electronic signature issues that could cause errors.)
+2. Download the binary file from GitHub release and add the path yourself. (Not recommended as there may be some codesign issues that could cause errors.)
 
 This guide will only cover how to build from the source code.
 

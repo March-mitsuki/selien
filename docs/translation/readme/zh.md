@@ -127,10 +127,15 @@ type CustomString string
     - ts -> string literal
   - $ref
     - 支持复用已经定义过的类型, 详见 [example](../../../example/spec/ref.md)
+  - $dyn
+    - 支持直接引用外部包, 详见 [example](../../../example/spec/dyn.md)
+  - union
+    - go -> interface{}
+    - ts -> union type
   - split
     - 支持分开定义不同语言中的类型, 详见 [example](../../../example/spec/split.md)
 - enum
-  - go -> a special type and const block
+  - go -> 一个特殊的 type + 一个 const 语块, 详见 [example](../../../example/spec/enum.md)
   - ts -> enum
 
 # 安装

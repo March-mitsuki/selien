@@ -114,6 +114,18 @@ pub fn generate_typescript(ast: &AST, imports: &mut Imports, tabsize: usize) -> 
                     result += &s;
                 }
             }
+            Node::Union(node) => {
+                let s = format!(
+                    "export type {} = {};\n",
+                    capitalize(&type_alias_ast.identifier),
+                    node.types
+                        .iter()
+                        .map(|v| iterate_union(imports, v, tabsize))
+                        .collect::<Vec<String>>()
+                        .join(" | ")
+                );
+                result += &s;
+            }
             Node::Empty => {
                 error!("Empty node.");
                 if crate::is_dev() {
@@ -233,6 +245,23 @@ fn iterate_properties(
                 std::process::exit(1);
             }
         }
+        Node::Union(node) => {
+            let mut s = format!(
+                "{}{}: {};",
+                indent,
+                p.identifier,
+                node.types
+                    .iter()
+                    .map(|v| iterate_union(imports, v, tabsize))
+                    .collect::<Vec<String>>()
+                    .join(" | ")
+            );
+            if !is_last {
+                s += "\n"
+            }
+
+            result += &s;
+        }
         Node::Empty => {
             error!("Empty node.");
             if crate::is_dev() {
@@ -301,6 +330,20 @@ fn iterate_array(imports: &mut Imports, n: &Node, tabsize: usize) -> String {
                 std::process::exit(1);
             }
         }
+        Node::Union(node) => {
+            let r: String = node
+                .types
+                .iter()
+                .map(|v| iterate_union(imports, v, tabsize))
+                .collect::<Vec<String>>()
+                .join(" | ");
+
+            if node.types.len() > 1 {
+                result += &format!("({})", r);
+            } else {
+                result += &r;
+            }
+        }
         Node::Empty => {
             error!("Empty node.");
             if crate::is_dev() {
@@ -342,6 +385,80 @@ fn iterate_members(
                 }
 
                 result += &s
+            }
+        }
+    }
+
+    result
+}
+
+fn iterate_union(imports: &mut Imports, n: &Node, tabsize: usize) -> String {
+    let mut result = String::new();
+    match n {
+        Node::StringLiteral(node) => {
+            result += &format!("\"{}\"", node.value);
+        }
+        Node::NumberLiteral(node) => {
+            result += &node.value.to_string();
+        }
+        Node::Keyword(node) => {
+            result += &node.value.to_string(SupportedLang::TypeScript);
+        }
+        Node::Object(node) => {
+            let r: String = node
+                .values
+                .iter()
+                .enumerate()
+                .map(|(idx, v)| {
+                    let is_last = idx == node.values.len() - 1;
+                    iterate_properties(imports, v, 1, tabsize, is_last)
+                })
+                .collect();
+            result += &format!("{{\n{}\n}}", r);
+        }
+        Node::Array(node) => {
+            let r = &iterate_array(imports, &node.items, tabsize);
+            result += &format!("{}[]", r);
+        }
+        Node::Ref(node) => {
+            if !node.path.is_empty() {
+                imports.push(Import::Ref(RefImport {
+                    name: capitalize(&node.name),
+                    from: node.path.clone(),
+                }));
+            }
+            result += &capitalize(&node.name);
+        }
+        Node::Dyn(node) => {
+            imports.push(Import::Dyn(DynImport {
+                name: node.name.clone(),
+                from: node.from.clone(),
+            }));
+
+            result += &node.name;
+        }
+        Node::Split(_) => {
+            error!("Split-type can only use on top-level.");
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+        Node::Union(_) => {
+            error!("Syntax error: Use a Union-type nested a Union-type.");
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+        Node::Empty => {
+            error!("Empty node.");
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
             }
         }
     }
