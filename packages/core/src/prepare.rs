@@ -44,7 +44,7 @@ fn parse_config_file<P: AsRef<Path>>(path: P) -> config::Config {
         if output_data.get(ga).is_some() {
             if let Some(ga_value) = output_data.get(ga) {
                 let mod_name = ga_value
-                    .get("modName")
+                    .get("mod_name")
                     .expect("selien golang config is missing in modName.")
                     .as_str()
                     .expect("Can not parse modName to string.")
@@ -57,6 +57,13 @@ fn parse_config_file<P: AsRef<Path>>(path: P) -> config::Config {
                     .expect("Can not parse output to string.")
                     .to_string();
 
+                let go_root = ga_value
+                    .get("root")
+                    .expect("selien golang config is missing in output.")
+                    .as_str()
+                    .expect("Can not parse output to string.")
+                    .to_string();
+
                 let tabsize = match ga_value.get("tabsize") {
                     Some(r) => r.as_u64().expect("Can not parse tabsize to u64.") as usize,
                     None => DEFAULT_TABSIZE.go,
@@ -64,6 +71,7 @@ fn parse_config_file<P: AsRef<Path>>(path: P) -> config::Config {
 
                 output_go = Some(config::OutputGo {
                     mod_name,
+                    root: go_root,
                     output,
                     tabsize,
                 });

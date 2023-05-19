@@ -7,10 +7,8 @@ pub struct Spec {
 
 #[derive(Debug, Deserialize)]
 pub struct OutputGo {
-    #[serde(rename = "modName")]
     pub mod_name: String,
-    // #[serde(rename = "modRoot")]
-    // pub mod_root: String,
+    pub root: String,
     pub output: String,
     pub tabsize: usize,
 }

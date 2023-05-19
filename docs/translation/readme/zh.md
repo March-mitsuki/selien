@@ -50,10 +50,8 @@ output:
   go: # 接受 go 或者 golang, 若同时定义则只生效最开始的定义
     modName: github.com/March-mitsuki/selien # 你 golang 的 mod name
     output: packages/go/selien_spec # 想要输出的文件夹, 当为一个相对路径的时候, selien 会从当前的 working directory 开始算起.
-    tabsize: 4 # golang 的默认 tabsize 为 4
   ts: # 接受 ts 或者 typescript, 若同时定义则只生效最开始的定义
     output: packages/ts/selien_spec
-    tabsize: 2 # typescript 的默认 tabsize 为 2
 ```
 
 - selien 会自动解释你指定的文件夹下的路径并保持其结构。
@@ -96,7 +94,7 @@ type CustomString string
 
 ```
 
-就是这样, 是不是非常简单? 如果你还想知道更多的语法可以看看[expamle文件夹](../../example/spec/)
+就是这样, 是不是非常简单? 如果你还想知道更多的语法可以看看[expamle文件夹](../../../example/spec/)
 
 # 目前支持的类型
 
@@ -126,9 +124,9 @@ type CustomString string
     - go -> string
     - ts -> string literal
   - $ref
-    - 支持复用已经定义过的类型, 详见 [example](../../example/spec/ref.md)
+    - 支持复用已经定义过的类型, 详见 [example](../../../example/spec/ref.md)
   - split
-    - 支持分开定义不同语言中的类型, 详见 [example](../../example/spec/split.md)
+    - 支持分开定义不同语言中的类型, 详见 [example](../../../example/spec/split.md)
 - enum
   - go -> a special type and const block
   - ts -> enum

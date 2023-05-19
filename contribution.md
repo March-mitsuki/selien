@@ -1,6 +1,6 @@
 # Contribution
 
-[简体中文](./docs/contribute/zh.md)
+[简体中文](./docs/translation/contribute/zh.md)
 
 ## I found a bug and can fix it. What should I do?
 

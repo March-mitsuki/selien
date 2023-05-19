@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use log::error;
 
 use crate::{
-    compiler::utils::go,
+    compiler::utils::{go, ts},
     generator::types::{Import, Imports},
     path::{add_dot, diff_paths, normalize_path, to_relative},
     types::{config::Config, lang::SupportedLang},
@@ -47,17 +47,17 @@ pub fn with_import(
                     }
                 };
             });
-            let s = format!("import (\n{}\n)\n\n", froms);
+
+            let s = format!("import (\n{}\n)\n\n", go::remove_duplicate_import(&froms));
             result += &s;
         }
         SupportedLang::TypeScript => {
-            imports
-                .iter()
-                .enumerate()
-                .for_each(|(idx, import)| match import {
+            let r_imports = ts::reduce_imports(imports);
+            r_imports.iter().enumerate().for_each(|(idx, import)| {
+                match import {
                     Import::Dyn(di) => {
                         let mut s = format!("import {{ {} }} from \"{}\";\n", di.name, di.from,);
-                        let is_last = idx == imports.len() - 1;
+                        let is_last = idx == r_imports.len() - 1;
                         if is_last {
                             s += "\n"
                         }
@@ -70,14 +70,15 @@ pub fn with_import(
                             ri.name,
                             process_from(lang, current, &ri.from, config)
                         );
-                        let is_last = idx == imports.len() - 1;
+                        let is_last = idx == r_imports.len() - 1;
                         if is_last {
                             s += "\n"
                         }
 
                         result += &s;
                     }
-                });
+                };
+            });
         }
     }
 
@@ -98,10 +99,13 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
 
                 let indent = " ".repeat(o.tabsize);
 
+                let goroot_to_output = diff_paths(&o.output, &o.root)
+                    .expect("Can not diff path from go-root to output");
+
                 // because f is absolute path from <selien-root>
-                // so just add with `mod_name/pkg_name`
+                // so just add `mod_name/middle/path/to/pkg_name` to head
                 let result_path = PathBuf::from(&o.mod_name)
-                    .join(go::get_root_pkg_name(config))
+                    .join(goroot_to_output)
                     .join(to_relative(f.parent().unwrap()));
 
                 result = format!("{}\"{}\"", indent, result_path.display());
@@ -161,7 +165,6 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                         }
                     }
                 };
-
                 result_path.push(replaced.parent().unwrap());
 
                 result = format!("{}\"{}\"", indent, result_path.display());

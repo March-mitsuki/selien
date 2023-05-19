@@ -1,6 +1,6 @@
 # selien, a ssot interface specification
 
-[简体中文](./docs/readme/zh.md)
+[简体中文](./docs/translation/readme/zh.md)
 
 **selien = connective(English) + 連携(日本語) + lien(français) + 连接(中文)**
 
@@ -22,9 +22,9 @@ Inspire by [openAPI](https://www.openapis.org/).
 
 # How to use
 
-To explain the syntax, we first need to explain our file structure. Before you start writing your first selien file, you need to specify a folder as the `selien-root` folder. All type definitions start from here.
+To explain the syntax, we first need to explain our file structure. Before you start writing your first selien file, you need to specify a directory as the `selien-root` directory. All type definitions start from here.
 
-For example, if you have an `my_project` folder as your project root directory, you can create a folder called `selien-spec `inside it and create YAML files inside that folder. Alternatively, you can continue creating folders below.
+For example, if you have an `my_project` directory as your project root directory, you can create a directory called `selien-spec `inside it and create YAML files inside that directory. Alternatively, you can continue creating directorys below.
 
 For example:
 
@@ -42,22 +42,23 @@ For example:
     └── ...your_other_file
 ```
 
-Then, you need to create a file named `selien.config.yaml` in your `<project-root>` folder and write your settings inside it. If we continue with the folder structure mentioned above:
+Then, you need to create a file named `selien.config.yaml` in your `<project-root>` directory and write your settings inside it. If we continue with the directory structure mentioned above:
+
+For more information about `selien.config.yaml`, see [here]
 
 ```yaml
 spec:
-  root: selien-spec # Path to your selien root folder. When it is a folder, selien will look for the selien.config.yaml file in that folder. When given a file path, selien will use that file directly. When given a relative path, selien will perform the above steps in the current working directory.
+  root: selien-spec # Path to your selien root directory. When it is a directory, selien will look for the selien.config.yaml file in that directory. When given a file path, selien will use that file directly. When given a relative path, selien will perform the above steps in the current working directory.
 output:
   go: # Accepts go or golang. If both are defined, only the first definition will take effect.
-    modName: github.com/March-mitsuki/selien # Your golang mod name
-    output: packages/go/selien_spec # The output folder. When it is a relative path, selien will start from the current working directory.
-    tabsize: 4 # The default tabsize for golang is 4.
+    mod_name: github.com/March-mitsuki/selien # Your golang mod name
+    mod_root: pckages/go # The root directory of golang project. Selien use this to calculate path.
+    output: packages/go/selien_spec # The output directory. When it is a relative path, selien will start from the current working directory.
   ts: # Accepts ts or typescript. If both are defined, only the first definition will take effect.
     output: packages/ts/selien_spec
-    tabsize: 2 # The default tabsize for typescript is 2.
 ```
 
-- selien will automatically interpret the paths specified in the folder and keep their structure.
+- selien will automatically interpret the paths specified in the directory and keep their structure.
   - For example, when generating TypeScript code with selien, all the types defined in `<selien-root>/rest/api.yaml`will be generated into `<ts-output>/rest/api.ts`.
 
 Now, let's finally look at the syntax. We'll start with a simple example.
@@ -79,7 +80,7 @@ Then run the CLI command:
 selien gen
 ```
 
-Selien will generate the code for the language(s) you defined in `selien.config.yaml` into the specified folder. For example, based on the settings we defined above, we will get:
+Selien will generate the code for the language(s) you defined in `selien.config.yaml` into the specified directory. For example, based on the settings we defined above, we will get:
 ```ts
 // <working-directory>/packages/ts/selien_spec/shared.ts
 
@@ -96,7 +97,7 @@ package selien_spec
 type CustomString string
 ```
 
-That's it! It's quite simple, isn't it? If you want to learn more about the syntax, you can take a look at the [expamle folder](./example/spec/)
+That's it! It's quite simple, isn't it? If you want to learn more about the syntax, you can take a look at the [expamle directory](./example/spec/)
 
 # Currently supported types
 

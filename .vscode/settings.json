@@ -6,5 +6,6 @@
     "editor.tabSize": 3,
     "editor.defaultFormatter": "yzhang.markdown-all-in-one"
   },
+  "markdown.extension.tableFormatter.enabled": false,
   "rust-analyzer.linkedProjects": ["./packages/core/Cargo.toml"]
 }

@@ -112,19 +112,19 @@ pub enum AST {
     Enum(ast_enum::EnumAst),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RefImport {
     pub name: String,
     pub from: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DynImport {
     pub name: String,
     pub from: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Import {
     Ref(RefImport),
     Dyn(DynImport),
