@@ -840,6 +840,17 @@ fn visit_properties(p: &serde_yaml::Mapping, node: &mut ast_type_alias::ObjectNo
 
                 property.body = ast_type_alias::Node::Union(union_node);
             }
+            Some("split") => {
+                error!(
+                    "Syntax error: split must used top-level. But you use it in a object {:?}.",
+                    key
+                );
+                if crate::is_dev() {
+                    panic!();
+                } else {
+                    std::process::exit(1);
+                }
+            }
             _ => {
                 error!(
                     "Syntax error: invalid type in object definition: {:?}.",
@@ -1103,6 +1114,17 @@ fn visit_items(i: &serde_yaml::Mapping, id: &str, node: &mut ast_type_alias::Arr
 
             node.items = Box::new(ast_type_alias::Node::Union(union_node));
         }
+        Some("split") => {
+            error!(
+                "Syntax error: split must used top-level. But you use it in a array {}.",
+                id
+            );
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
         _ => {
             error!("Syntax error: invalid type in array definition: {}.", id);
             if crate::is_dev() {
@@ -1335,6 +1357,17 @@ fn visit_union_types(t: &serde_yaml::Mapping, id: &str, node: &mut ast_type_alia
         }
         Some("uniton") => {
             error!("Syntax error: use uniton nested in a union: {}.", id);
+            if crate::is_dev() {
+                panic!();
+            } else {
+                std::process::exit(1);
+            }
+        }
+        Some("split") => {
+            error!(
+                "Syntax error: split must used top-level. But you use it in a union: {}.",
+                id
+            );
             if crate::is_dev() {
                 panic!();
             } else {
