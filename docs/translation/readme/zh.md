@@ -43,14 +43,16 @@ Inspire by [openAPI](https://www.openapis.org/).
 
 然后你需要在你的`<project-root>`文件夹下面, 创建一个叫做`selien.config.yaml`的文件, 并且在里面编写你的设置, 如果我们继续用上面介绍的文件夹结构:
 
+在 [这里](../config/zh.md) 查看更多关于 `selien.config.yaml` 的信息
+
 ```yaml
 spec:
-  root: selien-spec # 指向你的 selien root 文件夹, 当为一个文件夹的时候, selien 会在给定的文件夹中寻找 selien.config.yaml 文件. 当给到文件路径的时候, selien 会直接使用那个文件. 当给到相对路径时, selien 会在当前的 working directory 进行上述工作.
+  root: selien-spec
 output:
-  go: # 接受 go 或者 golang, 若同时定义则只生效最开始的定义
-    modName: github.com/March-mitsuki/selien # 你 golang 的 mod name
-    output: packages/go/selien_spec # 想要输出的文件夹, 当为一个相对路径的时候, selien 会从当前的 working directory 开始算起.
-  ts: # 接受 ts 或者 typescript, 若同时定义则只生效最开始的定义
+  go:
+    modName: github.com/March-mitsuki/selien
+    output: packages/go/selien_spec
+  ts:
     output: packages/ts/selien_spec
 ```
 
@@ -153,12 +155,15 @@ rustup --version
 git clone https://github.com/March-mitsuki/selien.git && cd selien
 ```
 
+**如果你是 Unix-like 用户**
+
 然后运行下面这行命令从源代码构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
 ```sh
-cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is install to ~/.selien/bin'
+cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is install to ~/.selien/bin'
 ```
 
-**如果你是windows用户**
+**如果你是 Windows 用户**
+
 那么请在 `powershell` 中运行 _下面这行_ 命令来构建 selien, 之后成果物的二进制文件就会在 `~/.selien/bin` 这个文件夹里了
 ```powershell
 cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }

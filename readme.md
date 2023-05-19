@@ -44,17 +44,17 @@ For example:
 
 Then, you need to create a file named `selien.config.yaml` in your `<project-root>` directory and write your settings inside it. If we continue with the directory structure mentioned above:
 
-For more information about `selien.config.yaml`, see [here]
+For more information about `selien.config.yaml`, see [here](./docs/config.md)
 
 ```yaml
 spec:
-  root: selien-spec # Path to your selien root directory. When it is a directory, selien will look for the selien.config.yaml file in that directory. When given a file path, selien will use that file directly. When given a relative path, selien will perform the above steps in the current working directory.
+  root: selien-spec
 output:
-  go: # Accepts go or golang. If both are defined, only the first definition will take effect.
-    mod_name: github.com/March-mitsuki/selien # Your golang mod name
-    mod_root: pckages/go # The root directory of golang project. Selien use this to calculate path.
-    output: packages/go/selien_spec # The output directory. When it is a relative path, selien will start from the current working directory.
-  ts: # Accepts ts or typescript. If both are defined, only the first definition will take effect.
+  go:
+    mod_name: github.com/March-mitsuki/selien
+    mod_root: pckages/go
+    output: packages/go/selien_spec
+  ts:
     output: packages/ts/selien_spec
 ```
 
@@ -156,12 +156,15 @@ Next, you need to clone this repository and enter the directory:
 git clone https://github.com/March-mitsuki/selien.git && cd selien
 ```
 
+**If you are using Unix-like**
+
 Then run the following command to build Selien from the source code. The binary file will be located in the `~/.selien/bin` directory after that.
 ```sh
-cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'
+cd packages/core && cargo build --bin selien --release && rm -rf ~/.selien && mkdir -p ~/.selien/bin && mv target/release/selien ~/.selien/bin && echo 'Selien is installed to ~/.selien/bin'
 ```
 
-**If you are a Windows user**
+**If you are using Windows**
+
 Please run the _command below_ in `powershell` to build Selien. The binary file will be in the `~/.selien/bin` directory thereafter.
 ```powershell
 cd packages/core; if ($?) { cargo build --bin selien --release }; Remove-Item -Path ~/.selien -Recurse -ErrorAction Ignore; mkdir ~/.selien/bin; if ($?) { mv target/release/selien.exe ~/.selien/bin }
