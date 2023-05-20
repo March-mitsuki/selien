@@ -19,3 +19,18 @@ definition:
     body:
       type: $ref
       uri: "/nested/nested_db/double#/definition/nestedDbHere"
+  refBrother:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "nested#/definition/relRefBro"
+  refBrotherAbs:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "/nested/nested#/definition/absRefBro"
+  refBrotherOtherRel:
+    declaration: type-alias
+    body:
+      type: $ref
+      uri: "./nested#/definition/dotRelRefBro"

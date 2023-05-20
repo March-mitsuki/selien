@@ -4,6 +4,7 @@
   "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
   "scripts": {
     "prepare": "husky install",
+    "prepare:dev:go": "node scripts/dev/prepare_go.js",
     "exec:core": "cd packages/core &&",
     "test": "cd packages/core && cargo insta test --review --bin selien",
     "lint": "cd packages/core && cargo build --bin selien --verbose && cargo clippy -- -D warnings",
@@ -17,6 +18,7 @@
     "build:verbose": "cd packages/core && cargo build --bin selien --verbose",
     "selien": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien",
     "gen": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen",
+    "gen:release": "cd packages/core && cargo build --bin selien --release && cd tests && ../target/release/selien gen",
     "gen:ts": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o ts",
     "gen:go": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o go"
   },

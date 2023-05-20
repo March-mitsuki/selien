@@ -23,9 +23,21 @@ definition:
     body:
       type: object
       properties:
+        email:
+          type: string
         username:
           type: string
         password:
+          type: any
+  objectWithRef:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        user:
+          type: $ref
+          uri: "#/definition/normalObject"
+        meta:
           type: any
   nestedObject:
     declaration: type-alias
@@ -83,7 +95,12 @@ definition:
       ts:
         type: number
       go:
-        type: string
+        type: object
+        properties:
+          head:
+            type: string
+          body:
+            type: any
   splitSide:
     declaration: type-alias
     body:
@@ -115,10 +132,10 @@ definition:
           body:
             type: object
             properties:
-              css:
+              path:
                 type: $dyn
-                name: "CSSProperties"
-                from: "react"
+                name: "PathLike"
+                from: "fs"
       go:
         type: object
         properties:

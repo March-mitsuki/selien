@@ -60,8 +60,14 @@ pub mod go {
 }
 
 pub mod ts {
-    use crate::generator::types::{Import, Imports};
-    use std::collections::{HashMap, HashSet};
+    use crate::{
+        generator::types::{Import, Imports},
+        path::add_dot,
+    };
+    use std::{
+        collections::{HashMap, HashSet},
+        path::PathBuf,
+    };
 
     pub fn reduce_imports(ipts: &Imports) -> Imports {
         let mut map: HashMap<String, Import> = HashMap::new();
@@ -75,7 +81,14 @@ pub mod ts {
                     }
                 }
                 Import::Ref(ri) => {
-                    let entry = map.entry(ri.from.clone()).or_insert_with(|| ipt.clone());
+                    let mut key = ri.from.clone();
+                    let mut value = ri.clone();
+                    let p = PathBuf::from(&ri.from);
+                    if p.is_relative() && !p.starts_with(".") {
+                        key = add_dot(&p).to_str().unwrap().to_string();
+                        value.from = key.clone();
+                    }
+                    let entry = map.entry(key).or_insert_with(|| Import::Ref(value));
                     if let Import::Ref(r) = entry {
                         r.name = format!("{}, {}", r.name, ri.name);
                     }

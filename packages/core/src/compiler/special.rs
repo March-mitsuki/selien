@@ -36,7 +36,11 @@ pub fn with_special(lang: &SupportedLang, content: &str, spec: &Spec, config: &C
             if !tokens.is_empty() {
                 for token in tokens {
                     let pkg_name = go::get_ref_pkg_name(&token.path, &spec.path, config);
-                    _content = _content.replace(&token.token, &pkg_name);
+                    if pkg_name.is_empty() {
+                        _content = _content.replace(&token.token, "");
+                    } else {
+                        _content = _content.replace(&token.token, &format!("{}.", pkg_name));
+                    }
                 }
             }
         }
@@ -73,34 +77,36 @@ mod go {
 
     pub(super) fn get_ref_pkg_name(path: &String, current: &String, config: &Config) -> String {
         let p = PathBuf::from(path);
-        let mut result: String;
 
-        if p.is_absolute() {
-            result = p
-                .parent()
+        let cp = PathBuf::from(current);
+        let current_pkg = cp.parent().unwrap();
+
+        let result = if p.is_absolute() {
+            p.parent()
                 .unwrap()
                 .file_name()
                 .unwrap()
                 .to_str()
                 .unwrap()
-                .to_string();
+                .to_string()
         } else {
-            let cp = PathBuf::from(current);
-            let parent = cp.parent().unwrap();
-            let joined = parent.join(p);
+            let joined = current_pkg.join(p);
             let normalized = normalize_path(&joined);
-            result = normalized
+            normalized
                 .parent()
                 .unwrap()
                 .file_name()
                 .unwrap()
                 .to_str()
                 .unwrap()
-                .to_string();
-        }
+                .to_string()
+        };
 
         if result == config.spec.root {
-            result = get_root_pkg_name(config).to_string();
+            return get_root_pkg_name(config).to_string();
+        }
+        if result == current_pkg.file_name().unwrap().to_str().unwrap() {
+            return String::new();
         }
 
         result

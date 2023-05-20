@@ -38,12 +38,13 @@ pub fn with_import(
                     }
                     Import::Ref(ri) => {
                         let mut f = process_from(lang, current, &ri.from, config);
-                        let is_last = idx == imports.len() - 1;
-                        if !is_last {
-                            f += "\n"
+                        if !f.is_empty() {
+                            let is_last = idx == imports.len() - 1;
+                            if !is_last {
+                                f += "\n"
+                            }
+                            froms += &f;
                         }
-
-                        froms += &f;
                     }
                 };
             });
@@ -86,6 +87,9 @@ pub fn with_import(
     result
 }
 
+/// `return`
+/// - go
+///     - if self import, will return empty string
 fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &Config) -> String {
     let result: String;
 
@@ -108,7 +112,14 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                     .join(goroot_to_output)
                     .join(to_relative(f.parent().unwrap()));
 
-                result = format!("{}\"{}\"", indent, result_path.display());
+                let ref_pkg = result_path.file_name().unwrap();
+                let cp = PathBuf::from(current);
+                let cuurent_pkg = cp.parent().unwrap().file_name().unwrap().to_str().unwrap();
+                if ref_pkg == cuurent_pkg {
+                    result = String::new();
+                } else {
+                    result = format!("{}\"{}\"", indent, result_path.display());
+                }
             }
             SupportedLang::TypeScript => {
                 let cp = PathBuf::from(current);
@@ -167,7 +178,13 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                 };
                 result_path.push(replaced.parent().unwrap());
 
-                result = format!("{}\"{}\"", indent, result_path.display());
+                let ref_pkg = result_path.file_name().unwrap();
+                let cuurent_pkg = cp.parent().unwrap().file_name().unwrap().to_str().unwrap();
+                if ref_pkg == cuurent_pkg {
+                    result = String::new();
+                } else {
+                    result = format!("{}\"{}\"", indent, result_path.display());
+                }
             }
             SupportedLang::TypeScript => {
                 result = format!("{}", f.display());

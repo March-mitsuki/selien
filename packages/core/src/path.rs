@@ -65,6 +65,9 @@ pub fn to_relative(p: &Path) -> PathBuf {
 ///
 /// `e.g.` home/username/selien -> ./home/username/selien
 pub fn add_dot(p: &Path) -> PathBuf {
+    if p.is_absolute() {
+        panic!("add_dot only accept relative path");
+    }
     let mut path = PathBuf::from(".");
     path.push(p);
     path

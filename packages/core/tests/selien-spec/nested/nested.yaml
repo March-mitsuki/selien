@@ -1,0 +1,23 @@
+selien-version: 0.1.0
+definition:
+  dotRelRefBro:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        hello:
+          type: string
+  absRefBro:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        hi:
+          type: number
+  RelRefBro:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        baz:
+          type: any

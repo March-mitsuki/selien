@@ -24,3 +24,6 @@ bin/
 
 # node_modules
 node_modules/
+
+# test file
+go.work

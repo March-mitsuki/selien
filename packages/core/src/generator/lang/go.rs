@@ -105,7 +105,7 @@ pub fn generate_go(ast: &AST, imports: &mut Imports, tabsize: usize) -> String {
                     if !node.path.is_empty() {
                         let ref_token = format!("[selien-ref]{}[selien-ref]", node.path);
                         s = format!(
-                            "type {} {}.{}\n",
+                            "type {} {}{}\n",
                             capitalize(&type_alias_ast.identifier),
                             ref_token,
                             capitalize(&node.name)
@@ -261,13 +261,10 @@ fn iterate_properties(
                 capitalize(&node.name),
                 &p.identifier
             );
-            if !is_last {
-                s += "\n"
-            }
             if !node.path.is_empty() {
                 let ref_token = format!("[selien-ref]{}[selien-ref]", node.path);
                 s = format!(
-                    "{}{} {}.{} `json:\"{}\"`",
+                    "{}{} {}{} `json:\"{}\"`",
                     indent,
                     capitalize(&p.identifier),
                     ref_token,
@@ -279,6 +276,10 @@ fn iterate_properties(
                     name: capitalize(&node.name),
                     from: node.path.clone(),
                 }));
+            }
+
+            if !is_last {
+                s += "\n"
             }
             result += &s
         }
@@ -363,7 +364,7 @@ fn iterate_array(imports: &mut Imports, node: &Node, tabsize: usize) -> String {
             let mut s = capitalize(&node.name);
             if !node.path.is_empty() {
                 let ref_token = format!("[selien-ref]{}[selien-ref]", node.path);
-                s = format!("{}.{}", ref_token, capitalize(&node.name));
+                s = format!("{}{}", ref_token, capitalize(&node.name));
 
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
@@ -424,7 +425,13 @@ fn iterate_members(
         ast_enum::MembersType::String => {
             for (idx, m) in members.iter().enumerate() {
                 let is_last = idx == members.len() - 1;
-                let mut s = format!("{}{} {} = \"{}\"", indent, m.identifier, type_id, m.value);
+                let mut s = format!(
+                    "{}{} {} = \"{}\"",
+                    indent,
+                    capitalize(&m.identifier),
+                    type_id,
+                    m.value
+                );
                 if !is_last {
                     s += "\n"
                 }
@@ -435,7 +442,13 @@ fn iterate_members(
         ast_enum::MembersType::Number => {
             for (idx, m) in members.iter().enumerate() {
                 let is_last = idx == members.len() - 1;
-                let mut s = format!("{}{} {} = {}", indent, m.identifier, type_id, m.value);
+                let mut s = format!(
+                    "{}{} {} = {}",
+                    indent,
+                    capitalize(&m.identifier),
+                    type_id,
+                    m.value
+                );
                 if !is_last {
                     s += "\n"
                 }
