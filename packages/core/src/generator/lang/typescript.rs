@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use log::error;
 
 use super::super::types::{
@@ -83,9 +85,10 @@ pub fn generate_typescript(ast: &AST, imports: &mut Imports, tabsize: usize) -> 
                 if !node.path.is_empty() {
                     imports.push(Import::Ref(RefImport {
                         name: capitalize(&node.name),
-                        from: node.path.clone(),
+                        from: PathBuf::from(&node.path),
                     }));
                 }
+
                 result += &s;
             }
             Node::Dyn(node) => {
@@ -220,7 +223,7 @@ fn iterate_properties(
             if !node.path.is_empty() {
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
-                    from: node.path.clone(),
+                    from: PathBuf::from(&node.path),
                 }));
             }
             result += &s
@@ -309,7 +312,7 @@ fn iterate_array(imports: &mut Imports, n: &Node, tabsize: usize) -> String {
             if !node.path.is_empty() {
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
-                    from: node.path.clone(),
+                    from: PathBuf::from(&node.path),
                 }));
             }
             result += &capitalize(&node.name);
@@ -424,7 +427,7 @@ fn iterate_union(imports: &mut Imports, n: &Node, tabsize: usize) -> String {
             if !node.path.is_empty() {
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
-                    from: node.path.clone(),
+                    from: PathBuf::from(&node.path),
                 }));
             }
             result += &capitalize(&node.name);

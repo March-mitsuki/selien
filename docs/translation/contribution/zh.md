@@ -62,6 +62,12 @@ cd selien
 pnpm i && pnpm prepare
 ```
 
+selien 使用了 [insta](https://github.com/mitsuhiko/insta) 来作为快照测试的工具, 所以你也需要安装 insta.
+
+```bash
+cargo instal cargo-insta
+```
+
 之后你就可以开始开发了, 让我们先跑个测试试一下
 
 ```

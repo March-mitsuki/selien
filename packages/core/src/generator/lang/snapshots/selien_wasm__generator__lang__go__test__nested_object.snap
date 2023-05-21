@@ -1,0 +1,6 @@
+---
+source: src/generator/lang/go.rs
+expression: result
+---
+"type TestAst struct {\n    Head struct {\n        Cmd string `json:\"cmd\"`\n    }\n    Body bool `json:\"body\"`\n}\n"
+

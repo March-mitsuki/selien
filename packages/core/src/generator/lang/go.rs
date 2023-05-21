@@ -113,7 +113,7 @@ pub fn generate_go(ast: &AST, imports: &mut Imports, tabsize: usize) -> String {
 
                         imports.push(Import::Ref(RefImport {
                             name: capitalize(&node.name),
-                            from: node.path.clone(),
+                            from: PathBuf::from(&node.path),
                         }));
                     }
 
@@ -274,7 +274,7 @@ fn iterate_properties(
 
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
-                    from: node.path.clone(),
+                    from: PathBuf::from(&node.path),
                 }));
             }
 
@@ -368,7 +368,7 @@ fn iterate_array(imports: &mut Imports, node: &Node, tabsize: usize) -> String {
 
                 imports.push(Import::Ref(RefImport {
                     name: capitalize(&node.name),
-                    from: node.path.clone(),
+                    from: PathBuf::from(&node.path),
                 }));
             }
 

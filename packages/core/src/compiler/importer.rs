@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use log::error;
+use log::{debug, error};
 
 use crate::{
     compiler::utils::{go, ts},
@@ -53,7 +53,9 @@ pub fn with_import(
             result += &s;
         }
         SupportedLang::TypeScript => {
+            debug!("before reduce imports: {:#?}", imports);
             let r_imports = ts::reduce_imports(imports);
+
             r_imports.iter().enumerate().for_each(|(idx, import)| {
                 match import {
                     Import::Dyn(di) => {
@@ -90,11 +92,11 @@ pub fn with_import(
 /// `return`
 /// - go
 ///     - if self import, will return empty string
-fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &Config) -> String {
+fn process_from(lang: &SupportedLang, current: &String, from: &PathBuf, config: &Config) -> String {
     let result: String;
 
-    let f = PathBuf::from(from);
-    if f.is_absolute() {
+    // selien $ref abs path must be start with `/`, even windows
+    if from.starts_with("/") {
         match lang {
             SupportedLang::Go => {
                 let o = config.output.go.as_ref().expect(
@@ -106,11 +108,11 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                 let goroot_to_output = diff_paths(&o.output, &o.root)
                     .expect("Can not diff path from go-root to output");
 
-                // because f is absolute path from <selien-root>
+                // because from is absolute path from <selien-root>
                 // so just add `mod_name/middle/path/to/pkg_name` to head
                 let result_path = PathBuf::from(&o.mod_name)
                     .join(goroot_to_output)
-                    .join(to_relative(f.parent().unwrap()));
+                    .join(to_relative(from.parent().unwrap()));
 
                 let ref_pkg = result_path.file_name().unwrap();
                 let cp = PathBuf::from(current);
@@ -118,16 +120,20 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                 if ref_pkg == cuurent_pkg {
                     result = String::new();
                 } else {
-                    result = format!("{}\"{}\"", indent, result_path.display());
+                    result = format!(
+                        "{}\"{}\"",
+                        indent,
+                        result_path.to_str().unwrap().replace('\\', "/")
+                    );
                 }
             }
             SupportedLang::TypeScript => {
                 let cp = PathBuf::from(current);
                 let cp_parent = cp.parent().unwrap();
 
-                // because f is absolute path from <selien-root>
+                // because from is absolute path from <selien-root>
                 // like /foo/bar, so add `<selien-root>/` to head
-                let f_parent = f.parent().unwrap();
+                let f_parent = from.parent().unwrap();
                 let f_relative = PathBuf::from(&config.spec.root).join(to_relative(f_parent));
 
                 let diff = match diff_paths(&f_relative, cp_parent) {
@@ -135,8 +141,8 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                     None => {
                         error!(
                             "Can not diff path {:?} to {:?}",
-                            &cp_parent.display(),
-                            &f_relative.display()
+                            &cp_parent.to_str().unwrap(),
+                            &f_relative.to_str().unwrap()
                         );
                         if crate::is_dev() {
                             panic!();
@@ -146,9 +152,9 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                     }
                 };
 
-                let result_path = add_dot(&diff.join(f.file_stem().unwrap()));
+                let result_path = add_dot(&diff.join(from.file_stem().unwrap()));
 
-                result = format!("{}", result_path.display());
+                result = result_path.to_str().unwrap().replace('\\', "/");
             }
         }
     } else {
@@ -162,13 +168,17 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                 let mut result_path = PathBuf::new();
 
                 let cp = PathBuf::from(current);
-                let joined = cp.parent().unwrap().join(&f);
+                let joined = cp.parent().unwrap().join(from);
                 let normalized = normalize_path(&joined);
 
                 let replaced = match go::replace_selien_root(&normalized, config) {
                     Ok(r) => r,
                     Err(err) => {
-                        error!("relative path {} out of selien-root: {}", &f.display(), err);
+                        error!(
+                            "relative path {} out of selien-root: {}",
+                            from.to_str().unwrap(),
+                            err
+                        );
                         if crate::is_dev() {
                             panic!();
                         } else {
@@ -183,11 +193,15 @@ fn process_from(lang: &SupportedLang, current: &String, from: &String, config: &
                 if ref_pkg == cuurent_pkg {
                     result = String::new();
                 } else {
-                    result = format!("{}\"{}\"", indent, result_path.display());
+                    result = format!(
+                        "{}\"{}\"",
+                        indent,
+                        result_path.to_str().unwrap().replace('\\', "/")
+                    );
                 }
             }
             SupportedLang::TypeScript => {
-                result = format!("{}", f.display());
+                result = from.to_str().unwrap().replace('\\', "/");
             }
         }
     }

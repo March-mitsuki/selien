@@ -1,0 +1,6 @@
+---
+source: src/generator/lang/typescript.rs
+expression: result
+---
+"export enum StringEnum {\n  Hello = \"hello\",\n  World = \"world\",\n};\n"
+

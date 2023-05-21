@@ -1,6 +1,6 @@
 # Contribution
 
-[简体中文](./docs/translation/contribute/zh.md)
+[简体中文](./docs/translation/contribution/zh.md)
 
 ## I found a bug and can fix it. What should I do?
 
@@ -70,6 +70,12 @@ Install Husky using PNPM:
 
 ```bash
 pnpm i && pnpm prepare
+```
+
+Selien use [insta](https://github.com/mitsuhiko/insta) to do snapshorts test. So you also should install insta.
+
+```bash
+cargo install cargo-insta
 ```
 
 Now you can start development. Let's run a test first:

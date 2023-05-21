@@ -81,12 +81,13 @@ pub mod ts {
                     }
                 }
                 Import::Ref(ri) => {
-                    let mut key = ri.from.clone();
+                    let mut key = ri.from.to_str().unwrap().to_string();
                     let mut value = ri.clone();
                     let p = PathBuf::from(&ri.from);
-                    if p.is_relative() && !p.starts_with(".") {
+
+                    if !p.starts_with("/") && !p.starts_with(".") && !p.starts_with("..") {
                         key = add_dot(&p).to_str().unwrap().to_string();
-                        value.from = key.clone();
+                        value.from = PathBuf::from(&key);
                     }
                     let entry = map.entry(key).or_insert_with(|| Import::Ref(value));
                     if let Import::Ref(r) = entry {

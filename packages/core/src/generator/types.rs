@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 pub mod ast_type_alias {
     #[derive(Debug, Clone)]
     pub struct StringLiteralNode {
@@ -121,7 +123,7 @@ pub enum AST {
 #[derive(Debug, Clone)]
 pub struct RefImport {
     pub name: String,
-    pub from: String,
+    pub from: PathBuf,
 }
 
 #[derive(Debug, Clone)]

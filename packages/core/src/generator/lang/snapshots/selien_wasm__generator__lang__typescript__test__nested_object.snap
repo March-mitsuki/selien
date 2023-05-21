@@ -1,0 +1,6 @@
+---
+source: src/generator/lang/typescript.rs
+expression: result
+---
+"export type TestAst = {\n  head: {\n    cmd: \"hello\";\n  };\n  body: boolean;\n};\n"
+

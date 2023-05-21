@@ -1,0 +1,6 @@
+---
+source: src/generator/lang/go.rs
+expression: result
+---
+"type ObjectArray []struct {\n    Head struct {\n        Cmd string `json:\"cmd\"`\n    }\n    Body struct {\n        Count int `json:\"count\"`\n    }\n}\n"
+

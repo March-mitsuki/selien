@@ -17,6 +17,7 @@
     "build:relase:win:x86:gnu": "cd packages/core && cross build --bin selien --release --target x86_64-pc-windows-gnu",
     "build:verbose": "cd packages/core && cargo build --bin selien --verbose",
     "selien": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien",
+    "selien:win": "node scripts/dev/selien_win.js --",
     "gen": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen",
     "gen:release": "cd packages/core && cargo build --bin selien --release && cd tests && ../target/release/selien gen",
     "gen:ts": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o ts",

@@ -10,7 +10,11 @@ importers:
 
   packages/aarch64-apple-darwin: {}
 
+  packages/aarch64-unknown-linux-gnu: {}
+
   packages/core: {}
+
+  packages/x86_64-windows-msvc: {}
 
 packages:
 

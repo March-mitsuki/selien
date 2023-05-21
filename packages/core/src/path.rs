@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Component, Path, PathBuf};
 
-use log::warn;
+use log::{error, warn};
 
 /// Process path from input with normalize.
 /// If input is relative path, then join it with current working directory.
@@ -45,16 +45,17 @@ pub fn normalize_path(path: &Path) -> PathBuf {
     ret
 }
 
-/// Convert absolute selien $ref path to relative path.
+/// Convert absolute **selien $ref path** to relative path.
 ///
 /// `e.g.` /rest/user -> rest/user
+///
+/// This function expected a **unix** path input.
 pub fn to_relative(p: &Path) -> PathBuf {
-    if p.is_relative() {
-        return p.to_owned();
-    }
-
     if !p.starts_with("/") {
-        warn!("$ref absolute path should start with /: {}", p.display());
+        warn!(
+            "$ref absolute path should start with '/': {}",
+            p.to_str().unwrap()
+        );
         return p.to_owned();
     }
 
@@ -65,12 +66,25 @@ pub fn to_relative(p: &Path) -> PathBuf {
 ///
 /// `e.g.` home/username/selien -> ./home/username/selien
 pub fn add_dot(p: &Path) -> PathBuf {
-    if p.is_absolute() {
-        panic!("add_dot only accept relative path");
+    // selien $ref abs path should start with '/', even windows
+    if p.starts_with("/") {
+        error!(
+            "$ref absolute path should start with '/': {}",
+            p.to_str().unwrap()
+        );
+        if crate::is_dev() {
+            panic!();
+        } else {
+            std::process::exit(1);
+        }
     }
-    let mut path = PathBuf::from(".");
-    path.push(p);
-    path
+
+    if std::env::consts::OS == "windows" {
+        // use in codegen, so we need to convert windows path to unix path
+        PathBuf::from(format!("./{}", p.to_str().unwrap()))
+    } else {
+        PathBuf::from(".").join(p)
+    }
 }
 
 pub fn diff_paths<P, B>(path: P, base: B) -> Option<PathBuf>
