@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use log::{debug, error};
+use log::error;
 
 use crate::{
     compiler::utils::{go, ts},
@@ -53,7 +53,6 @@ pub fn with_import(
             result += &s;
         }
         SupportedLang::TypeScript => {
-            debug!("before reduce imports: {:#?}", imports);
             let r_imports = ts::reduce_imports(imports);
 
             r_imports.iter().enumerate().for_each(|(idx, import)| {
