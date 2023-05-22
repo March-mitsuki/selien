@@ -49,7 +49,7 @@ pub(self) mod for_test {
             values: vec![head, body],
         };
         let ast = AST::TypeAlias(ast_type_alias::TypeAliasAst {
-            identifier: String::from("TestAst"),
+            identifier: String::from("testAst"),
             body: ast_type_alias::Node::Object(obj),
         });
 
@@ -66,7 +66,7 @@ pub(self) mod for_test {
         */
 
         let ast = AST::TypeAlias(ast_type_alias::TypeAliasAst {
-            identifier: String::from("TestArray"),
+            identifier: String::from("testArray"),
             body: ast_type_alias::Node::Array(ast_type_alias::ArrayNode {
                 items: Box::new(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
                     value: Keywords::Number,
@@ -87,7 +87,7 @@ pub(self) mod for_test {
         */
 
         let ast = AST::TypeAlias(ast_type_alias::TypeAliasAst {
-            identifier: String::from("NestedArray"),
+            identifier: String::from("nestedArray"),
             body: ast_type_alias::Node::Array(ast_type_alias::ArrayNode {
                 items: Box::new(ast_type_alias::Node::Array(ast_type_alias::ArrayNode {
                     items: Box::new(ast_type_alias::Node::Keyword(ast_type_alias::KeywordNode {
@@ -149,7 +149,7 @@ pub(self) mod for_test {
             values: vec![head, body],
         };
         let ast = AST::TypeAlias(ast_type_alias::TypeAliasAst {
-            identifier: String::from("ObjectArray"),
+            identifier: String::from("objectArray"),
             body: ast_type_alias::Node::Array(ast_type_alias::ArrayNode {
                 items: Box::new(ast_type_alias::Node::Object(obj)),
             }),
@@ -169,21 +169,21 @@ pub(self) mod for_test {
         go:
         type StringEnum string
         const (
-            StringEnumHello StringEnum = "hello"
-            StringEnumWorld StringEnum = "world"
+            Hello StringEnum = "hello"
+            World StringEnum = "world"
         )
         */
 
         let ast = AST::Enum(ast_enum::EnumAst {
-            identifier: String::from("StringEnum"),
+            identifier: String::from("stringEnum"),
             r#type: ast_enum::MembersType::String,
             members: vec![
                 ast_enum::Member {
-                    identifier: String::from("Hello"),
+                    identifier: String::from("hello"),
                     value: String::from("hello"),
                 },
                 ast_enum::Member {
-                    identifier: String::from("World"),
+                    identifier: String::from("world"),
                     value: String::from("world"),
                 },
             ],
