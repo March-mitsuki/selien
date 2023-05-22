@@ -9,27 +9,27 @@ const TOML = require("@iarna/toml");
  * @returns {string} New version
  */
 function bump(version, type) {
-  const currentVersionParts = version.split(".");
-  if (currentVersionParts.length !== 3) {
+  let versionParts = version.split(".");
+  if (versionParts.length !== 3) {
     console.error(`Invalid version ${version}.`);
     process.exit(1);
   }
 
   switch (type) {
     case "major": {
-      let majorVersion = parseInt(currentVersionParts[0], 10);
+      let majorVersion = parseInt(versionParts[0], 10);
       majorVersion += 1;
       versionParts[0] = majorVersion.toString();
       break;
     }
     case "minor": {
-      let minorVersion = parseInt(currentVersionParts[1], 10);
+      let minorVersion = parseInt(versionParts[1], 10);
       minorVersion += 1;
       versionParts[1] = minorVersion.toString();
       break;
     }
     case "patch": {
-      let patchVersion = parseInt(currentVersionParts[2], 10);
+      let patchVersion = parseInt(versionParts[2], 10);
       patchVersion += 1;
       versionParts[2] = patchVersion.toString();
       break;
@@ -60,7 +60,7 @@ function replaceTomlVersion(tomlStr, newVersion) {
  * @returns {string} Package.json string with new version
  */
 function replacePkgJsonVersion(pkgJsonStr, newVersion) {
-  const regex = /version\s*:\s*"([0-9]+\.[0-9]+\.[0-9]+)",?/;
+  const regex = /"version"\s*:\s*"([^"]*)"/;
   return pkgJsonStr.replace(regex, `"version": "${newVersion}"`);
 }
 
@@ -115,4 +115,6 @@ module.exports = function (type) {
   const newRootPkgJsonStr = replacePkgJsonVersion(rootPkgJsonStr, newVersion);
 
   fs.writeFileSync(rootPkgJsonPath, newRootPkgJsonStr, "utf8");
+
+  console.log(`Bumped version from ${currentVersion} to ${newVersion}`);
 };

@@ -1,6 +1,6 @@
 {
   "name": "@selien/aarch64-unkonwn-linux-gnu",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
   "license": "MIT",
   "files": [
