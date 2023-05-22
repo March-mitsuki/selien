@@ -1,6 +1,6 @@
 {
   "name": "selien-monorepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
   "scripts": {
     "prepare": "husky install",

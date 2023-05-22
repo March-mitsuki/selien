@@ -39,10 +39,10 @@ pub fn generate_go(ast: &AST, imports: &mut Imports, tabsize: usize) -> String {
 
             match &enum_ast.r#type {
                 ast_enum::MembersType::String => {
-                    result += &format!("type {} string\n", enum_ast.identifier);
+                    result += &format!("type {} string\n", capitalize(&enum_ast.identifier));
                 }
                 ast_enum::MembersType::Number => {
-                    result += &format!("type {} int\n", enum_ast.identifier);
+                    result += &format!("type {} int\n", capitalize(&enum_ast.identifier));
                 }
             }
 
