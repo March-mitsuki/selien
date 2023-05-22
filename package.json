@@ -24,6 +24,7 @@
     "gen:go": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o go"
   },
   "devDependencies": {
+    "@iarna/toml": "^2.2.5",
     "husky": "^8.0.3"
   },
   "keywords": [
