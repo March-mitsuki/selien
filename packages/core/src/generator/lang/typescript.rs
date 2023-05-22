@@ -371,7 +371,7 @@ fn iterate_members(
         ast_enum::MembersType::String => {
             for (idx, m) in members.iter().enumerate() {
                 let is_last = idx == members.len() - 1;
-                let mut s = format!("{}{} = \"{}\",", indent, m.identifier, m.value);
+                let mut s = format!("{}{} = \"{}\",", indent, capitalize(&m.identifier), m.value);
                 if !is_last {
                     s += "\n"
                 }
@@ -382,7 +382,7 @@ fn iterate_members(
         ast_enum::MembersType::Number => {
             for (idx, m) in members.iter().enumerate() {
                 let is_last = idx == members.len() - 1;
-                let mut s = format!("{}{} = {},", indent, m.identifier, m.value);
+                let mut s = format!("{}{} = {},", indent, capitalize(&m.identifier), m.value);
                 if !is_last {
                     s += "\n"
                 }

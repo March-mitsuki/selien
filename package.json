@@ -1,6 +1,6 @@
 {
   "name": "selien-monorepo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An interface definition tool that follows the single source of truth (SSOT) principle.",
   "scripts": {
     "prepare": "husky install",
@@ -21,9 +21,13 @@
     "gen": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen",
     "gen:release": "cd packages/core && cargo build --bin selien --release && cd tests && ../target/release/selien gen",
     "gen:ts": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o ts",
-    "gen:go": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o go"
+    "gen:go": "cd packages/core && cargo build --bin selien && cd tests && ../target/debug/selien gen -o go",
+    "bump:major": "node scripts/version/major.js",
+    "bump:minor": "node scripts/version/minor.js",
+    "bump:patch": "node scripts/version/patch.js"
   },
   "devDependencies": {
+    "@iarna/toml": "^2.2.5",
     "husky": "^8.0.3"
   },
   "keywords": [

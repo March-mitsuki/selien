@@ -415,7 +415,7 @@ fn iterate_array(imports: &mut Imports, node: &Node, tabsize: usize) -> String {
 fn iterate_members(
     members: &ast_enum::Members,
     m_type: &ast_enum::MembersType,
-    type_id: &String,
+    type_id: &str,
     tabsize: usize,
 ) -> String {
     let indent = " ".repeat(tabsize);
@@ -429,7 +429,7 @@ fn iterate_members(
                     "{}{} {} = \"{}\"",
                     indent,
                     capitalize(&m.identifier),
-                    type_id,
+                    capitalize(type_id),
                     m.value
                 );
                 if !is_last {
@@ -446,7 +446,7 @@ fn iterate_members(
                     "{}{} {} = {}",
                     indent,
                     capitalize(&m.identifier),
-                    type_id,
+                    capitalize(type_id),
                     m.value
                 );
                 if !is_last {
