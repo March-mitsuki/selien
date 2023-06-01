@@ -1,0 +1,25 @@
+selien-version: 0.1.0
+definition:
+  normalObject:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: any
+  nestedObject:
+    declaration: type-alias
+    body:
+      type: object
+      properties:
+        head:
+          type: object
+          properties:
+            cmd:
+              type: string
+            stat:
+              type: number
+        body:
+          type: number
