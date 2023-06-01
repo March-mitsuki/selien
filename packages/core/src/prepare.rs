@@ -188,7 +188,7 @@ fn visit_dirs(path: &Path, result: &mut Vec<spec::Spec>) {
                             spec.def = parse_def(&value);
                         }
                         _ => {
-                            error!("Syntax error in selien file: {:?}", path);
+                            error!("Syntax error in selien file (selien-version or definition missing): {:?}", _path);
                             if crate::is_dev() {
                                 panic!();
                             } else {
@@ -198,7 +198,7 @@ fn visit_dirs(path: &Path, result: &mut Vec<spec::Spec>) {
                     }
                 }
             } else {
-                error!("Selien file must be a object (mapping): {:?}", path);
+                error!("Selien file must be a object (mapping) type: {:?}", _path);
                 if crate::is_dev() {
                     panic!();
                 } else {

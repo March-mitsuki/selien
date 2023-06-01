@@ -1,0 +1,14 @@
+selien-version: 0.1.0
+definition:
+  numberEnum:
+    declaration: enum
+    type: number
+    members:
+      - one: 1
+      - two: 2
+  stringEnum:
+    declaration: enum
+    type: string
+    members:
+      - h: Hello
+      - w: World

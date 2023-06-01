@@ -1,0 +1,14 @@
+selien-version: 0.1.0
+definition:
+  customString:
+    declaration: type-alias
+    body:
+      type: string
+  customNumber:
+    declaration: type-alias
+    body:
+      type: number
+  customBoolean:
+    declaration: type-alias
+    body:
+      type: boolean

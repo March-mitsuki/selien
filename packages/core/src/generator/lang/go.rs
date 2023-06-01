@@ -228,11 +228,12 @@ fn iterate_properties(
                 })
                 .collect();
             let mut s = format!(
-                "{i}{id} struct {{\n{re}\n{ii}}}",
+                "{i}{id} struct {{\n{re}\n{ii}}} `json:\"{j}\"`",
                 i = indent,
                 id = capitalize(&p.identifier),
                 ii = indent,
-                re = r
+                re = r,
+                j = &p.identifier
             );
             if !is_last {
                 s += "\n"

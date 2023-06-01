@@ -78,6 +78,6 @@ type RefDynamic struct {
   Body struct {
     // 在 go 中, selien 会自动将首字母大写 (如果你没有在selien中大写它的话), 以保持代码符合 go 的语法
     Css types.Css `json:"css"`
-  }
+  } `json:"body"`
 }
 ```
